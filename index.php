@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Challenges</title>
+    <?php include 'style.php'; ?>
 </head>
 
 <body>
@@ -61,15 +62,15 @@
                 </div>
                 <div class="grupo-fisico">
                     <div class="campo-metade">
-                        <label for="altura">Altura (cm)</label>
+                        <label for="height">Altura (cm)</label>
                         <br>
-                        <input type="number" name="altura" id="altura" placeholder="175" required>
+                        <input type="number" name="height" id="height" placeholder="175" required>
                     </div>
 
                     <div class="campo-metade">
-                        <label for="peso">Peso (kg)</label>
+                        <label for="weight">Peso (kg)</label>
                         <br>
-                        <input type="number" name="peso" id="peso" placeholder="70" required>
+                        <input type="number" name="weight" id="weight" placeholder="70" required>
                     </div>
                 </div>
 
@@ -86,5 +87,6 @@
             </div>
         </form>
     </main>
+    <?php include 'script.php'; ?>
 </body>
 </html>
