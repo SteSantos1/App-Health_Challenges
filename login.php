@@ -1,0 +1,159 @@
+<?php
+
+require_once 'env.php';
+
+if (isset($_SESSION['id_usuario'])) {
+    header('Location: inicio.php');
+    exit;
+}
+
+$erro = '';
+$email_digitado = '';
+
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $email_digitado = trim($_POST['email'] ?? '');
+    $senha_digitada = $_POST['password'] ?? '';
+
+    if ($email_digitado === '' || $senha_digitada === '') {
+        $erro = 'Preencha o e-mail e a senha.';
+    } else {
+        $dsn = "mysql:host=$ENV_HOST;dbname=$ENV_DBNAME;charset=utf8mb4";
+
+        try {
+            $pdo = new PDO($dsn, $ENV_USER, $ENV_PASSWORD);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            echo 'Erro de conexão: ' . $e->getMessage();
+            exit;
+        }
+
+        $sql = "SELECT id_usuario, nome, senha FROM usuario WHERE email = :email LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':email', $email_digitado);
+        $stmt->execute();
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($usuario && password_verify($senha_digitada, $usuario['senha'])) {
+
+            session_regenerate_id(true);
+
+           
+            $_SESSION['id_usuario'] = $usuario['id_usuario'];
+            $_SESSION['nome']       = $usuario['nome'];
+
+            header('Location: inicio.php');
+            exit;
+        }
+
+        $erro = 'E-mail ou senha incorretos.';
+    }
+}
+
+$saiu = isset($_GET['saiu']);
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar | Health Challenges</title>
+    <?php include 'login_style.php'; ?>
+</head>
+
+<body class="pagina-login">
+
+    <header class="marca">
+        <span class="marca-icone" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+        </span>
+        <span class="marca-nome">Health Challenges</span>
+    </header>
+
+    <main class="cartao">
+
+        <section class="lado-mascote" aria-hidden="true">
+            <span class="folha folha-1"></span>
+            <span class="folha folha-2"></span>
+
+
+            <svg class="mascote" viewBox="0 0 300 220">
+
+                <path d="M20 190 Q150 190 290 168" stroke="#6B4A2F" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+                <path d="M215 50 Q240 15 268 25 Q272 58 236 70 Q222 72 215 50Z" fill="#7BAE5A"/>
+                <path d="M190 102 Q215 70 250 48" stroke="#2F6B3F" stroke-width="2.5" fill="none"/>
+
+                <circle cx="150" cy="105" r="80" fill="#9A7150"/>
+
+                <ellipse cx="155" cy="108" rx="64" ry="58" fill="#E8D9C3"/>
+
+                <path d="M100 100 Q112 76 140 88 Q132 112 106 112Z" fill="#7A5638"/>
+                <path d="M210 100 Q198 76 170 88 Q178 112 204 112Z" fill="#7A5638"/>
+                <circle cx="121" cy="99" r="7" fill="#2B1D12"/>
+                <circle cx="189" cy="99" r="7" fill="#2B1D12"/>
+
+                <ellipse cx="155" cy="118" rx="9" ry="6" fill="#2B1D12"/>
+                <path d="M135 128 Q145 140 155 128 Q165 140 175 128" stroke="#2B1D12" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+                <path d="M88 140 Q80 180 98 196" stroke="#4A3220" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <path d="M212 140 Q222 178 206 194" stroke="#4A3220" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+
+            <h2>Pequenos passos, grandes conquistas.</h2>
+            <p>Crie hábitos saudáveis no seu ritmo e celebre cada avanço.</p>
+        </section>
+
+        <section class="lado-form">
+            <p class="sobretitulo">BEM-VINDO DE VOLTA</p>
+            <h1>Entre na sua conta</h1>
+            <p class="subtitulo">Continue evoluindo um desafio por vez.</p>
+
+            <?php if ($saiu): ?>
+                <div class="aviso aviso-sucesso" role="status">Você saiu da sua conta.</div>
+            <?php endif; ?>
+
+            <?php if ($erro !== ''): ?>
+                <div class="aviso aviso-erro" role="alert"><?= htmlspecialchars($erro) ?></div>
+            <?php endif; ?>
+
+            <form id="form-login" action="login.php" method="post" novalidate>
+                <div>
+                    <label for="email">E-mail</label>
+                    <input type="email" name="email" id="email"
+                           placeholder="voce@exemplo.com"
+                           value="<?= htmlspecialchars($email_digitado) ?>"
+                           autocomplete="email" required>
+                </div>
+
+                <div>
+                    <label for="password">Senha</label>
+                    <div class="campo-senha">
+                        <input type="password" name="password" id="password"
+                               placeholder="Sua senha"
+                               autocomplete="current-password" required>
+                        <button type="button" id="mostrar-senha" class="btn-olho"
+                                aria-label="Mostrar senha">Mostrar</button>
+                    </div>
+                </div>
+
+                <div id="erro-js" class="aviso aviso-erro escondido" role="alert"></div>
+
+                <button type="submit" class="btn-principal">Entrar</button>
+            </form>
+
+            <p class="link-cadastro">
+                <a href="index.php">Ainda não tem conta? Criar conta</a>
+            </p>
+        </section>
+    </main>
+
+    <?php include 'login_script.php'; ?>
+</body>
+
+</html>
