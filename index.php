@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dsn = "mysql:host=$ENV_HOST;dbname=$ENV_DBNAME;charset=utf8mb4";
 
         try {
-            $pdo = new PDO($dsn, $ENV_USER, $ENV_PASSWORD);
+            $pdo = new PDO($dsn, $ENV_USERNAME, $ENV_PASSWORD);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
             echo 'Erro de conexão: ' . $e->getMessage();
