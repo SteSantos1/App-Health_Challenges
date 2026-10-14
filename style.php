@@ -170,4 +170,23 @@ button[onclick="voltarPasso()"] {
     flex: 1.5;
     margin-top: 0;
 }
+
+.menu-navegacao {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.menu-navegacao a {
+    color: var(--cor-texto-principal);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.menu-navegacao a:hover {
+    color: var(--cor-primaria);
+}
 </style>
