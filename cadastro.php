@@ -62,15 +62,15 @@
                 </div>
                 <div class="grupo-fisico">
                     <div class="campo-metade">
-                        <label for="height">Altura (cm)</label>
+                        <label for="height">Altura (m)</label>
                         <br>
-                        <input type="number" name="height" id="height" placeholder="175" required>
+                        <input type="text" name="height" id="height" placeholder="1.75" required>
                     </div>
 
                     <div class="campo-metade">
                         <label for="weight">Peso (kg)</label>
                         <br>
-                        <input type="number" name="weight" id="weight" placeholder="70" required>
+                        <input type="text" name="weight" id="weight" placeholder="70" required>
                     </div>
                 </div>
 
@@ -81,7 +81,7 @@
                 <div class="botoes-acao">
                     <button type="button" onclick="voltarPasso()">&larr; Voltar</button>
 
-                    <button type="button" class="btn-principal">Criar conta</button>
+                    <button type="submit" class="btn-principal">Criar conta</button>
                 </div>
 
             </div>
