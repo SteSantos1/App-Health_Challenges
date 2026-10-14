@@ -81,7 +81,7 @@
                 <div class="botoes-acao">
                     <button type="button" onclick="voltarPasso()">&larr; Voltar</button>
 
-                    <button type="submit" class="btn-principal">Criar conta</button>
+                    <button type="button" class="btn-principal">Criar conta</button>
                 </div>
 
             </div>
