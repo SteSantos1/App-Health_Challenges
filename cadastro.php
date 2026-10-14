@@ -10,7 +10,9 @@
 
 <body>
     <header>
-        <img src="#" alt="logo">
+        <span class="folha folha-1"></span>
+        <span class="folha folha-2"></span>
+        <img src="img/mascote.png" alt="Logo Health Challenges">
         <h2>Health Challenges</h2>
     </header>
     <main>

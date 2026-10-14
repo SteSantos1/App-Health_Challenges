@@ -81,29 +81,7 @@ $saiu = isset($_GET['saiu']);
             <span class="folha folha-1"></span>
             <span class="folha folha-2"></span>
 
-
-            <svg class="mascote" viewBox="0 0 300 220">
-
-                <path d="M20 190 Q150 190 290 168" stroke="#6B4A2F" stroke-width="8" fill="none" stroke-linecap="round"/>
-
-                <path d="M215 50 Q240 15 268 25 Q272 58 236 70 Q222 72 215 50Z" fill="#7BAE5A"/>
-                <path d="M190 102 Q215 70 250 48" stroke="#2F6B3F" stroke-width="2.5" fill="none"/>
-
-                <circle cx="150" cy="105" r="80" fill="#9A7150"/>
-
-                <ellipse cx="155" cy="108" rx="64" ry="58" fill="#E8D9C3"/>
-
-                <path d="M100 100 Q112 76 140 88 Q132 112 106 112Z" fill="#7A5638"/>
-                <path d="M210 100 Q198 76 170 88 Q178 112 204 112Z" fill="#7A5638"/>
-                <circle cx="121" cy="99" r="7" fill="#2B1D12"/>
-                <circle cx="189" cy="99" r="7" fill="#2B1D12"/>
-
-                <ellipse cx="155" cy="118" rx="9" ry="6" fill="#2B1D12"/>
-                <path d="M135 128 Q145 140 155 128 Q165 140 175 128" stroke="#2B1D12" stroke-width="3" fill="none" stroke-linecap="round"/>
-
-                <path d="M88 140 Q80 180 98 196" stroke="#4A3220" stroke-width="3" fill="none" stroke-linecap="round"/>
-                <path d="M212 140 Q222 178 206 194" stroke="#4A3220" stroke-width="3" fill="none" stroke-linecap="round"/>
-            </svg>
+              <img src="img/mascote.png" alt="" class="mascote">
 
             <h2>Pequenos passos, grandes conquistas.</h2>
             <p>Crie hábitos saudáveis no seu ritmo e celebre cada avanço.</p>

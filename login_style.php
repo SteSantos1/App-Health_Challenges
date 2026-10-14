@@ -106,9 +106,10 @@ body {
 }
 
 .mascote {
-    width: 300px;
-    max-width: 80%;
-    margin-bottom: 70px;
+    width: 360px;
+    max-width: 90%;
+    height: auto;
+    margin-bottom: 40px;
     position: relative;
 }
 
@@ -331,7 +332,7 @@ input:focus {
     }
 
     .mascote {
-        width: 160px;
+        width: 200px;
         margin-bottom: 12px;
     }
 
