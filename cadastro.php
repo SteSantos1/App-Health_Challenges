@@ -75,7 +75,7 @@
                 </div>
 
                 <div class="aviso-privacidade">
-                    <p>🔒 Seus dados são privados e utilizados apenas para personalizar sua experiência de saúde e calcular seu IMC.</p>
+                    <p>Seus dados são privados e utilizados apenas para personalizar sua experiência de saúde e calcular seu IMC.</p>
                 </div>
 
                 <div class="botoes-acao">
