@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once 'env.php';
 
 $dsn = "mysql:host=$ENV_HOST;dbname=$ENV_DBNAME";
@@ -21,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     $altura_digitada = trim($_POST['height']);
     $peso_digitado = trim($_POST['weight']);
 
-    $sql = "SELECT id FROM usuario WHERE email = :email LIMIT 1";
+    $sql = "SELECT id_usuario FROM usuario WHERE email = :email LIMIT 1";
     $stmt = $pdo->prepare($sql);
     $stmt->bindParam(':email', $email_digitado);
     $stmt->execute();
