@@ -63,6 +63,7 @@ $saiu = isset($_GET['saiu']);
     <?php include 'login_style.php'; ?>
 </head>
 
+<<<<<<< Updated upstream
 <body class="pagina-login">
 
     <header class="marca">
@@ -74,6 +75,11 @@ $saiu = isset($_GET['saiu']);
         </span>
         <span class="marca-nome">Health Challenges</span>
     </header>
+=======
+<body>
+    <main>
+        <form action="registro.php" method="post">
+>>>>>>> Stashed changes
 
     <main class="cartao">
 
