@@ -7,5 +7,5 @@ if (session_status() === PHP_SESSION_NONE) {
 $_SESSION = [];
 session_destroy();
 
-header('Location: login.php?saiu=1');
+header('Location: index.php?saiu=1');
 exit;
