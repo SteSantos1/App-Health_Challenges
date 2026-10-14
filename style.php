@@ -55,15 +55,16 @@ header {
     text-align: center;
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
+    position: relative;
+    overflow: hidden;
 }
 
 header img {
-    width: 140px;
-    height: 140px;
-    background-color: #d1e2d1; /* Fundo provisório para a logo */
-    border-radius: 50%;
+    width: 360px;
+    max-width: 90%;
+    height: auto;
     margin-bottom: 24px;
-    object-fit: cover;
+    position: relative;
 }
 
 header h2 {
@@ -71,6 +72,27 @@ header h2 {
     font-weight: 800;
     color: var(--cor-texto-principal);
     line-height: 1.2;
+    position: relative;
+}
+
+.folha {
+    position: absolute;
+    background-color: #CFE0C3;
+}
+.folha-1 {
+    width: 200px;
+    height: 90px;
+    top: -10px;
+    left: -10px;
+    border-radius: 0 100% 0 100%;
+}
+.folha-2 {
+    width: 110px;
+    height: 190px;
+    top: 70px;
+    right: 10px;
+    border-radius: 100% 0 100% 0;
+    transform: rotate(20deg);
 }
 
 /* 4. O MAIN vira a coluna branca da direita */
