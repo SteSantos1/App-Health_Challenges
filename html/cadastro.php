@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Health Challenges</title>
-    <?php include 'style.php'; ?>
+    <?php include __DIR__ . '/../css/cadastro_style.php'; ?>
 </head>
 
 <body>
     <header>
-        <img src="#" alt="logo">
+        <span class="folha folha-1"></span>
+        <span class="folha folha-2"></span>
+        <img src="../img/mascote.png" alt="Logo Health Challenges">
         <h2>Health Challenges</h2>
     </header>
     <main>
@@ -87,6 +89,6 @@
             </div>
         </form>
     </main>
-    <?php include 'script.php'; ?>
+    <?php include __DIR__ . '/../javascript/cadastro_script.php'; ?>
 </body>
 </html>

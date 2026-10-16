@@ -1,7 +1,7 @@
 <?php
 
 
-require_once 'verifica_sessao.php';
+require_once __DIR__ . '/../php/verifica_sessao.php';
 
 $nome = $_SESSION['nome'];
 ?>
@@ -12,7 +12,7 @@ $nome = $_SESSION['nome'];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Início | Health Challenges</title>
-    <?php include 'login_style.php'; ?>
+    <?php include __DIR__ . '/../css/login_style.php'; ?>
     <style>
         .menu { display: flex; gap: 8px; padding: 0 32px; background-color: var(--branco); border-bottom: 1px solid var(--borda); overflow-x: auto; }
         .menu a { padding: 14px 18px; color: var(--texto-suave); font-weight: 700; text-decoration: none; border-bottom: 3px solid transparent; white-space: nowrap; }
@@ -34,7 +34,7 @@ $nome = $_SESSION['nome'];
             <span class="marca-nome">Health Challenges</span>
         </div>
 
-        <a href="logout.php" class="btn-sair">Sair</a>
+        <a href="../php/logout.php" class="btn-sair">Sair</a>
     </header>
 
     <nav class="menu">

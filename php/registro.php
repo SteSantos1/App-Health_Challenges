@@ -1,5 +1,5 @@
 <?php
-require_once 'env.php';
+require_once __DIR__ . '/env.php';
 
 $dsn = "mysql:host=$ENV_HOST;dbname=$ENV_DBNAME";
 
