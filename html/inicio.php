@@ -292,19 +292,7 @@ $conquistas = [
             font-family: var(--fonte);
         }
 
-        .atalhos a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 18px 10px;
-            font-weight: 600;
-            color: #45556C;
-        }
 
-        .atalhos a:hover {
-            background-color: var(--verde-claro);
-        }
 
         @media (max-width: 1100px) {
             .inicio-grade {
@@ -318,18 +306,11 @@ $conquistas = [
             }
 
             .opcoes .grade-3,
-            .numeros.grade-3,
-            .atalhos.grade-3 {
+            .numeros.grade-3 {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 8px;
             }
 
-            .atalhos a {
-                flex-direction: column;
-                gap: 4px;
-                padding: 14px 6px;
-                font-size: 0.9rem;
-            }
 
             .numero-cartao {
                 padding: 16px 6px;
@@ -448,12 +429,6 @@ $conquistas = [
                         <?php endforeach; ?>
                     </div>
                 </section>
-
-                <nav class="grade-3 atalhos" aria-label="Atalhos">
-                    <a href="desafios.php" class="cartao-app"><span aria-hidden="true">🏆</span> Desafios</a>
-                    <a href="ranking.php" class="cartao-app"><span aria-hidden="true">📊</span> Ranking</a>
-                    <a href="grupos.php" class="cartao-app"><span aria-hidden="true">👥</span> Grupos</a>
-                </nav>
             </div>
         </div>
     </main>
