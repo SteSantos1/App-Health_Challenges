@@ -1,4 +1,3 @@
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
@@ -6,19 +5,19 @@
 <style>
 
 :root {
-    --bege: #F3EEE6;
-    --verde: #2F6B3F;
-    --verde-escuro: #24552F;
-    --verde-claro: #E2EBDA;
-    --folha: #CFE0C3;
-    --marrom: #6B4A2F;
-    --texto: #2B2B2B;
-    --texto-suave: #5F6B62;
-    --borda: #D9D4CB;
+    --bege: #F0FDF8;
+    --verde: #009966;
+    --verde-escuro: #007A55;
+    --verde-claro: #00BC7D;
+    --folha: rgba(255, 255, 255, 0.14);
+    --marrom: #0F172B;
+    --texto: #0F172B;
+    --texto-suave: #62748E;
+    --borda: #E2E8F0;
     --branco: #FFFFFF;
     --erro-fundo: #FDECEC;
     --erro-texto: #B42318;
-    --sucesso-fundo: #E6F2E2;
+    --sucesso-fundo: #ECFDF5;
     --fonte: 'Nunito', Arial, Helvetica, sans-serif;
 }
 
@@ -67,7 +66,7 @@ body {
     background-color: var(--branco);
     border-radius: 32px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(107, 74, 47, 0.12);
+    box-shadow: 0 20px 50px rgba(15, 23, 43, 0.08);
 }
 
 .lado-mascote {
@@ -116,13 +115,13 @@ body {
 .lado-mascote h2 {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--marrom);
+    color: var(--branco);
     line-height: 1.5;
     margin-bottom: 8px;
 }
 
 .lado-mascote p {
-    color: var(--texto-suave);
+    color: rgba(255, 255, 255, 0.92);
     font-size: 1.1rem;
     line-height: 1.6;
 }
@@ -182,13 +181,13 @@ input {
 }
 
 input::placeholder {
-    color: #8A8F8B;
+    color: #90A1B9;
     font-weight: 600;
 }
 
 input:focus {
     border-color: var(--verde);
-    box-shadow: 0 0 0 3px rgba(47, 107, 63, 0.18);
+    box-shadow: 0 0 0 3px rgba(0, 153, 102, 0.18);
 }
 
 /* Campo de senha com o botão "Mostrar" dentro */
@@ -226,7 +225,7 @@ input:focus {
     font-size: 1.15rem;
     font-weight: 800;
     cursor: pointer;
-    box-shadow: 0 8px 18px rgba(47, 107, 63, 0.25);
+    box-shadow: 0 8px 18px rgba(0, 153, 102, 0.25);
 }
 
 .btn-principal:hover {
@@ -281,7 +280,7 @@ input:focus {
     justify-content: space-between;
     padding: 16px 32px;
     background-color: var(--branco);
-    box-shadow: 0 2px 10px rgba(107, 74, 47, 0.08);
+    box-shadow: 0 2px 10px rgba(15, 23, 43, 0.06);
 }
 
 .topo .marca {
@@ -298,7 +297,7 @@ input:focus {
 }
 
 .btn-sair:hover {
-    background-color: #573B24;
+    background-color: #1D293D;
 }
 
 .conteudo {
