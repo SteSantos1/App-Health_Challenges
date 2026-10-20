@@ -1,15 +1,15 @@
 <style>
 :root {
-    --cor-fundo: #fbf9f4; 
-    --cor-fundo-ilustracao: #e4efe4; 
-    --cor-texto-principal: #503822; 
-    --cor-texto-secundario: #64748b;
-    --cor-primaria: #2d6a4f; 
-    --cor-borda: #cbd5e1;
+    --cor-fundo: #F0FDF8; 
+    --cor-fundo-ilustracao: #00BC7D; 
+    --cor-texto-principal: #0F172B; 
+    --cor-texto-secundario: #62748E;
+    --cor-primaria: #009966; 
+    --cor-borda: #E2E8F0;
     --cor-fundo-input: #ffffff;
-    --cor-alerta-fundo: #e6f4ea;
-    --cor-alerta-texto: #1b4d3e;
-    --cor-botao-voltar: #e2dcd5;
+    --cor-alerta-fundo: #ECFDF5;
+    --cor-alerta-texto: #007A55;
+    --cor-botao-voltar: #F1F5F9;
     --fonte-padrao: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -70,14 +70,14 @@ header img {
 header h2 {
     font-size: 2rem;
     font-weight: 800;
-    color: var(--cor-texto-principal);
+    color: #FFFFFF;
     line-height: 1.2;
     position: relative;
 }
 
 .folha {
     position: absolute;
-    background-color: #CFE0C3;
+    background-color: rgba(255, 255, 255, 0.14);
 }
 .folha-1 {
     width: 200px;
@@ -109,7 +109,7 @@ main {
 .fundo-barra {
     width: 100%;
     height: 6px;
-    background-color: #e2dcd5;
+    background-color: #E2E8F0;
     border-radius: 4px;
     margin-bottom: 32px;
     overflow: hidden;
@@ -165,7 +165,7 @@ input {
 
 input:focus {
     border-color: var(--cor-primaria);
-    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+    box-shadow: 0 0 0 3px rgba(0, 153, 102, 0.15);
 }
 
 .grupo-fisico {
@@ -218,8 +218,8 @@ button.btn-principal {
 
 button[type="button"][onclick="avancarPasso()"]:hover,
 button.btn-principal:hover {
-    background-color: #1b4d3e;
-    box-shadow: 0 4px 12px rgba(45, 106, 79, 0.15);
+    background-color: #007A55;
+    box-shadow: 0 4px 12px rgba(0, 153, 102, 0.25);
 }
 
 .botoes-acao {
@@ -236,7 +236,7 @@ button[onclick="voltarPasso()"] {
 }
 
 button[onclick="voltarPasso()"]:hover {
-    background-color: #d6cfc8;
+    background-color: #E2E8F0;
 }
 
 .botoes-acao .btn-principal {
@@ -250,11 +250,36 @@ button[onclick="voltarPasso()"]:hover {
         flex-direction: column;
         max-width: 440px;
     }
+    html {
+        padding: 12px;
+        align-items: flex-start;
+    }
+    body {
+        border-radius: 28px;
+    }
     header {
-        display: none; /* Esconde a lateral verde no celular para focar no cadastro */
+        padding: 24px;
+        border-radius: 0;
+    }
+    header img {
+        width: 150px;
+        margin-bottom: 12px;
+    }
+    header h2 {
+        font-size: 1.4rem;
+    }
+    .folha-2 {
+        display: none;
     }
     main {
-        padding: 32px 24px;
+        padding: 28px 20px;
+    }
+    h1 {
+        font-size: 1.8rem;
+    }
+    .grupo-fisico {
+        flex-direction: column;
+        gap: 16px;
     }
 }
 
