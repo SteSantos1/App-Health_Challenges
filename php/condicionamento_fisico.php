@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/conexao.php';
+require_once __DIR__ . '/verifica_sessao.php';
 
 $id_usuario = $_SESSION['id_usuario'];
 
