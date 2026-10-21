@@ -192,7 +192,7 @@
             <h3>Atualizar medidas</h3>
             <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
         </div>
-        <form class="form-app" method="post" action="#">
+        <form class="form-app" method="post" action="../php/salvar_medidas.php">
             <div class="form-linha">
                 <div>
                     <label for="peso">Peso (kg)</label>
