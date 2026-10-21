@@ -101,8 +101,8 @@ $stmt_evolucao->execute([
 ]);
 
 $atividades_por_mes = [];
-foreach ($stmt_evolucao->fetchAll(PDO::FETCH_ASSOC) as $linha) {
-    $atividades_por_mes[$linha['mes']][] = $linha;
+foreach ($stmt_evolucao->fetchAll(PDO::FETCH_ASSOC) as $registro_atividade) {
+    $atividades_por_mes[$registro_atividade['mes']][] = $registro_atividade;
 }
 
 $evolucao_indice = [];
