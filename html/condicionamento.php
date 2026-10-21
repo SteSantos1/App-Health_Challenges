@@ -1,17 +1,50 @@
 <?php
+require_once __DIR__ . '/../php/env.php';
 require_once __DIR__ . '/../php/verifica_sessao.php';
 
 $pagina_atual = 'condicionamento';
 $titulo_topo = 'Condicionamento';
 
-// Exemplo: virá das tabelas usuario, atividade e historico_corporal (Sprint 2)
-$indice_atual = 78;
+$dsn = "mysql:host=$ENV_HOST;dbname=$ENV_DBNAME;charset=utf8mb4";
+$pdo = new PDO($dsn, $ENV_USERNAME, $ENV_PASSWORD);
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-$dados_fisicos = [
-    'peso' => 78,
-    'altura' => 1.75,
-    'data_nascimento' => '1999-03-10',
-];
+if (isset($_POST['atualizar_medidas'])) {
+    $peso = $_POST['peso'];
+    $altura = $_POST['altura'];
+
+    $sql = "UPDATE usuario 
+            SET peso = :peso, altura = :altura
+            WHERE id_usuario = :id_usuario";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'peso' => $peso,
+        'altura' => $altura,
+        'id_usuario' => $_SESSION['id_usuario']
+    ]);
+
+    header('Location: condicionamento.php');
+    exit;
+}
+
+$sql = "SELECT peso, altura, data_nascimento
+        FROM usuario
+        WHERE id_usuario = :id_usuario
+        LIMIT 1";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    'id_usuario' => $_SESSION['id_usuario']
+]);
+
+$dados_fisicos = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if ($dados_fisicos === false) {
+    die('Não foram encontrados dados para este usuário.');
+}
+
+$indice_atual = 78;
 
 $evolucao_indice = [
     ['mes' => 'Mai', 'valor' => 62],
@@ -40,12 +73,12 @@ $atividades = [
 $emojis = ['Caminhada' => '🚶', 'Corrida' => '🏃', 'Ciclismo' => '🚴'];
 $meses_curtos = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
-function calcular_imc($peso, $altura)
+function calcular_imc(float $peso, float $altura): float
 {
     return $peso / ($altura * $altura);
 }
 
-function classificar_imc($imc)
+function classificar_imc(float $imc)
 {
     if ($imc < 18.5) return ['Abaixo do peso', 'aviso'];
     if ($imc < 25)   return ['Peso normal', 'bom'];
@@ -53,7 +86,7 @@ function classificar_imc($imc)
     return ['Obesidade', 'ruim'];
 }
 
-function classificar_indice($valor)
+function classificar_indice(int $valor)
 {
     if ($valor >= 85) return 'Excelente';
     if ($valor >= 70) return 'Bom';
@@ -524,6 +557,7 @@ $preenchido = $circunferencia * $indice_atual / 100;
         </div>
         <form class="form-app" method="post" action="#">
             <div class="form-linha">
+                <input type="hidden" name="acao" value="atualizar_medidas">
                 <div>
                     <label for="peso">Peso (kg)</label>
                     <input type="number" id="peso" name="peso" min="20" max="400" step="0.1" value="<?= $dados_fisicos['peso'] ?>" required>
@@ -534,7 +568,9 @@ $preenchido = $circunferencia * $indice_atual / 100;
                 </div>
             </div>
             <p class="texto-suave">O IMC é calculado automaticamente a partir do peso e da altura.</p>
-            <button type="submit" class="btn btn-primario btn-bloco">Salvar medidas</button>
+            <button type="submit" name="atualizar_medidas" value="1" class="btn btn-primario btn-bloco">
+                Salvar medidas
+            </button>
         </form>
     </dialog>
 </body>
