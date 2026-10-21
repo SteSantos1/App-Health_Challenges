@@ -23,26 +23,34 @@ $stmt_ativ = $pdo->prepare("SELECT tipo_atividade as tipo, valor_atingido as val
 $stmt_ativ->execute(['id' => $id_usuario]);
 $atividades = $stmt_ativ->fetchAll(PDO::FETCH_ASSOC);
 
-$pontos_totais = 0;
+
+//nn mudar
 $stmt_indice = $pdo->prepare("SELECT tipo_atividade, valor_atingido, unidade FROM atividade WHERE id_usuario = :id AND data_hora >= DATE_SUB(NOW(), INTERVAL 30 DAY)");
+//nn mudar
 $stmt_indice->execute(['id' => $id_usuario]);
+//nn mudar
 $atividades_recentes = $stmt_indice->fetchAll(PDO::FETCH_ASSOC);
 
-foreach ($atividades_recentes as $ativ) {
-    $valor = (float) $ativ['valor_atingido'];
-    $tipo = $ativ['tipo_atividade'];
-    $unidade = $ativ['unidade'];
+// criar funcao pra usar umas 6 vezes no codigo dps
 
-    if ($tipo === 'Corrida') {
-        $pontos_totais += ($unidade === 'km') ? ($valor * 10) : ($valor * 1);
-    } elseif ($tipo === 'Ciclismo') {
-        $pontos_totais += ($unidade === 'km') ? ($valor * 4) : ($valor * 0.4);
-    } elseif ($tipo === 'Caminhada') {
-        $pontos_totais += ($unidade === 'km') ? ($valor * 5) : ($valor * 0.5);
+function calcular_indice($lista_atividades){
+    $pontos = 0;
+    foreach ($lista_atividades as $ativ) {
+        $valor = (float) $ativ['valor_atingido'];
+        $tipo = $ativ['tipo_atividade'];
+        $unidade = $ativ['unidade'];
+
+        if ($tipo === 'Corrida'){
+            $pontos += ($unidade === 'km') ? ($valor * 10) : ($valor * 1);
+        } elseif ($tipo === 'Ciclismo'){
+            $pontos += ($unidade === 'km') ? ($valor * 4) : ($valor * 0.4);
+        } elseif ($tipo === 'Caminhada'){
+            $pontos += ($unidade === 'km') ? ($valor * 5) : ($valor * 0.5);
+        }
     }
+    return min(100, round($pontos));
 }
-
-$indice_atual = min(100, round($pontos_totais));
+$indice_atual = calcular_indice($atividades_recentes);
 
 $emojis = ['Caminhada' => '🚶', 'Corrida' => '🏃', 'Ciclismo' => '🚴'];
 $meses_curtos = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -80,10 +88,32 @@ foreach ($atividades as $atividade) {
     }
 }
 
-$evolucao_indice = [
-    ['mes' => 'Anterior', 'valor' => 0],
-    ['mes' => 'Atual', 'valor' => $indice_atual],
-];
+$inicio = new DateTime('first day of this month 00:00');
+$inicio->modify('-5 months');
+
+$stmt_evolucao = $pdo->prepare("SELECT tipo_atividade, valor_atingido, unidade, DATE_FORMAT(data_hora, '%Y-%m') AS mes
+                                FROM atividade
+                                WHERE id_usuario = :id AND data_hora >= :inicio");
+$stmt_evolucao->execute([
+    'id' => $id_usuario,
+    'inicio' => $inicio->format('Y-m-d H:i:s'),
+]);
+
+$atividades_por_mes = [];
+foreach ($stmt_evolucao->fetchAll(PDO::FETCH_ASSOC) as $linha) {
+    $atividades_por_mes[$linha['mes']][] = $linha;
+}
+
+$evolucao_indice = [];
+for ($i = 0; $i < 6; $i++) {
+    $mes = (clone $inicio)->modify("+$i months");
+    $chave = $mes->format('Y-m');
+
+    $evolucao_indice[] = [
+        'mes'   => ucfirst($meses_curtos[(int) $mes->format('n')]),
+        'valor' => calcular_indice($atividades_por_mes[$chave] ?? []),
+    ];
+}
 
 $largura = 1000;
 $altura_grafico = 200;
