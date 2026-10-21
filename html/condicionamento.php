@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../php/conexao.php';
 require_once __DIR__ . '/../php/verifica_sessao.php';
 
 $pagina_atual = 'condicionamento';
@@ -28,14 +29,18 @@ $historico_corporal = [
     ['data' => '10/08/2026', 'peso' => 80.8, 'altura' => 1.75],
 ];
 
-$atividades = [
-    ['tipo' => 'Corrida',   'valor' => 6,  'unidade' => 'km', 'data_hora' => '2026-10-15 07:30'],
-    ['tipo' => 'Ciclismo',  'valor' => 15, 'unidade' => 'km', 'data_hora' => '2026-10-14 18:10'],
-    ['tipo' => 'Caminhada', 'valor' => 5,  'unidade' => 'km', 'data_hora' => '2026-10-13 19:00'],
-    ['tipo' => 'Corrida',   'valor' => 8,  'unidade' => 'km', 'data_hora' => '2026-10-11 07:15'],
-    ['tipo' => 'Caminhada', 'valor' => 40, 'unidade' => 'min', 'data_hora' => '2026-10-09 12:20'],
-    ['tipo' => 'Caminhada', 'valor' => 3,  'unidade' => 'km', 'data_hora' => '2026-10-07 20:05'],
-];
+$sql = "SELECT tipo_atividade AS tipo,
+               valor_atingido AS valor,
+               unidade,
+               data_hora
+        FROM atividade
+        WHERE id_usuario = :id_usuario
+        ORDER BY data_hora DESC
+        LIMIT 20";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':id_usuario' => $_SESSION['id_usuario']]);
+$atividades = $stmt->fetchAll();
 
 $emojis = ['Caminhada' => '🚶', 'Corrida' => '🏃', 'Ciclismo' => '🚴'];
 $meses_curtos = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
@@ -345,6 +350,22 @@ $preenchido = $circunferencia * $indice_atual / 100;
                 font-size: 0.7rem;
             }
         }
+        .aviso-app {
+            padding: 14px 18px;
+            border-radius: 14px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            }
+
+        .aviso-app.sucesso {
+            background-color: var(--verde-claro);
+            color: var(--verde-escuro);
+            }
+
+        .aviso-app.erro {
+            background-color: var(--dificil-fundo);
+            color: var(--dificil);
+            }
     </style>
 </head>
 
@@ -362,6 +383,12 @@ $preenchido = $circunferencia * $indice_atual / 100;
                 <button type="button" class="btn btn-primario" onclick="document.getElementById('janela-registrar').showModal()"><?= icone('mais', 20) ?> Registrar</button>
             </div>
         </div>
+
+        <?php if (isset($_GET['registrado'])): ?>
+            <p class="aviso-app sucesso" role="status">Atividade registrada!</p>
+        <?php elseif (isset($_GET['erro'])): ?>
+            <p class="aviso-app erro" role="alert">Não foi possível registrar. Confira os dados e tente de novo.</p>
+        <?php endif; ?>
 
         <div class="cond-grade">
             <section class="cartao-app com-padding indice-cartao" aria-labelledby="titulo-indice">
@@ -467,6 +494,9 @@ $preenchido = $circunferencia * $indice_atual / 100;
         <section class="cartao-app historico" aria-labelledby="titulo-historico">
             <h3 class="cartao-titulo" id="titulo-historico"><span><?= icone('calendario', 22) ?> Histórico de atividades</span></h3>
             <div class="lista-linhas">
+                <?php if (empty($atividades)): ?>
+                    <p class="texto-suave" style="padding: 24px 30px;">Nenhuma atividade registrada ainda. Clique em "Registrar" para começar.</p>
+                <?php endif; ?>
                 <?php foreach ($atividades as $atividade): ?>
                     <?php $data = new DateTime($atividade['data_hora']); ?>
                     <div class="atividade">
@@ -487,7 +517,7 @@ $preenchido = $circunferencia * $indice_atual / 100;
             <h3>Registrar atividade</h3>
             <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
         </div>
-        <form class="form-app" method="post" action="#">
+        <form class="form-app" method="post" action="../php/registrar_atividade.php">
             <div>
                 <label for="tipo">Tipo</label>
                 <select id="tipo" name="tipo" required>
