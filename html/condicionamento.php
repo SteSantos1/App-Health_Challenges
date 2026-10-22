@@ -485,13 +485,19 @@ $preenchido = $circunferencia * $indice_atual / 100;
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($historico_corporal as $registro): ?>
+                        <?php if (empty($historico_corporal)): ?>
                             <tr>
-                                <td><?= $registro['data'] ?></td>
-                                <td><?= number_format($registro['peso'], 1, ',', '') ?> kg</td>
-                                <td><?= number_format(calcular_imc($registro['peso'], $registro['altura']), 1, ',', '') ?></td>
+                                <td colspan="3">Nenhuma medida registrada ainda.</td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ($historico_corporal as $registro): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($registro['data'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= number_format((float) $registro['peso'], 1, ',', '') ?> kg</td>
+                                    <td><?= number_format(calcular_imc((float) $registro['peso'], (float) $registro['altura']), 1, ',', '') ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </section>
