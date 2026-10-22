@@ -17,8 +17,18 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     $email_digitado = trim($_POST['email']);
     $senha_digitada = trim($_POST['password']);
     $data_digitada = trim($_POST['date-birth']);
-    $altura_digitada = trim($_POST['height']);
-    $peso_digitado = trim($_POST['weight']);
+    $altura_digitada = (float) str_replace(',', '.', trim($_POST['height']));
+    $peso_digitado = (float) str_replace(',', '.', trim($_POST['weight']));
+
+    if ($altura_digitada < 0.5 || $altura_digitada > 2.5) {
+        echo 'Altura inválida. Informe um valor entre 0,5 e 2,5 metros.';
+        exit;
+    }
+
+    if ($peso_digitado < 20 || $peso_digitado > 400) {
+        echo 'Peso inválido. Informe um valor entre 20 e 400 kg.';
+        exit;
+    }
 
     $sql = "SELECT id_usuario FROM usuario WHERE email = :email LIMIT 1";
     $stmt = $pdo->prepare($sql);
