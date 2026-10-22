@@ -119,13 +119,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($historico_corporal as $registro): ?>
+                        <?php if (empty($historico_corporal)): ?>
                             <tr>
-                                <td><?= $registro['data'] ?></td>
-                                <td><?= number_format($registro['peso'], 1, ',', '') ?> kg</td>
-                                <td><?= number_format(calcular_imc($registro['peso'], $registro['altura']), 1, ',', '') ?></td>
+                                <td colspan="3">Nenhuma medida registrada ainda.</td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php else: ?>
+                            <?php foreach ($historico_corporal as $registro): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($registro['data'], ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td><?= number_format((float) $registro['peso'], 1, ',', '') ?> kg</td>
+                                    <td><?= number_format(calcular_imc((float) $registro['peso'], (float) $registro['altura']), 1, ',', '') ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </section>
@@ -194,6 +200,7 @@
         </div>
         <form class="form-app" method="post" action="../php/salvar_medidas.php">
             <div class="form-linha">
+                <input type="hidden" name="acao" value="atualizar_medidas">
                 <div>
                     <label for="peso">Peso (kg)</label>
                     <input type="number" id="peso" name="peso" min="20" max="400" step="0.1" value="<?= $dados_fisicos['peso'] ?>" required>
@@ -204,7 +211,9 @@
                 </div>
             </div>
             <p class="texto-suave">O IMC é calculado automaticamente a partir do peso e da altura.</p>
-            <button type="submit" class="btn btn-primario btn-bloco">Salvar medidas</button>
+            <button type="submit" name="atualizar_medidas" value="1" class="btn btn-primario btn-bloco">
+                Salvar medidas
+            </button>
         </form>
     </dialog>
 </body>

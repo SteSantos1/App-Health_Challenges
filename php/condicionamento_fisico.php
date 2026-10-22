@@ -16,9 +16,20 @@ if (!$dados_fisicos || empty($dados_fisicos['peso'])) {
     $dados_fisicos = ['peso' => 0, 'altura' => 0, 'data_nascimento' => date('Y-m-d')];
 }
 
-$stmt_hist = $pdo->prepare("SELECT DATE_FORMAT(data_registro, '%d/%m/%Y') AS data, peso, altura FROM historico_corporal WHERE id_usuario = :id ORDER BY data_registro DESC");
-$stmt_hist->execute(['id' => $id_usuario]);
-$historico_corporal = $stmt_hist->fetchAll(PDO::FETCH_ASSOC);
+function buscar_historico_medidas(PDO $pdo, int $id_usuario): array
+{
+    $stmt = $pdo->prepare(
+        "SELECT DATE_FORMAT(data_registro, '%d/%m/%Y') AS data, peso, altura
+         FROM historico_corporal
+         WHERE id_usuario = :id
+         ORDER BY data_registro DESC, id_historico DESC"
+    );
+    $stmt->execute(['id' => $id_usuario]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+$historico_corporal = buscar_historico_medidas($pdo, (int) $id_usuario);
 
 $stmt_ativ = $pdo->prepare("SELECT tipo_atividade as tipo, valor_atingido as valor, unidade, data_hora FROM atividade WHERE id_usuario = :id ORDER BY data_hora DESC");
 $stmt_ativ->execute(['id' => $id_usuario]);
