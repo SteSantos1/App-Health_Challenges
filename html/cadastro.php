@@ -16,7 +16,7 @@
         <h2>Health Challenges</h2>
     </header>
     <main>
-        <form action="registro.php" method="post">
+        <form action="../php/registro.php" method="post">
 
             <div class="fundo-barra">
                 <div class="barra-verde" id="barra-progresso"></div>

@@ -43,6 +43,8 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     $stmt->bindParam(':peso', $peso_digitado);
 
     $stmt->execute();
+    header('Location: ../html/inicio.php');
+    exit;
 }
 
 ?>
