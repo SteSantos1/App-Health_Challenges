@@ -22,7 +22,7 @@ function buscar_historico_medidas(PDO $pdo, int $id_usuario): array
         "SELECT DATE_FORMAT(data_registro, '%d/%m/%Y') AS data, peso, altura
          FROM historico_corporal
          WHERE id_usuario = :id
-         ORDER BY data_registro DESC"
+         ORDER BY data_registro DESC, id_historico DESC"
     );
     $stmt->execute(['id' => $id_usuario]);
 

@@ -52,9 +52,46 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     $stmt->bindParam(':altura', $altura_digitada);
     $stmt->bindParam(':peso', $peso_digitado);
 
-    $stmt->execute();
-    header('Location: ../html/inicio.php');
-    exit;
+
+    $pdo->beginTransaction();
+
+    try {
+        $stmt->execute(); // Salva a pessoa na tabela usuario
+
+        $id_novo_usuario = $pdo->lastInsertId(); // Descobre o ID que o banco acabou de criar para essa pessoa
+
+        $imc = $peso_digitado / ($altura_digitada * $altura_digitada);// Calcula o IMC usando o peso e a altura do cadastro
+
+        // Salva a primeira medida no histórico, vinculada a esse ID
+        $stmt_historico = $pdo->prepare(
+            "INSERT INTO historico_corporal
+                (altura, peso, imc, data_registro, id_usuario)
+            VALUES
+                (:altura, :peso, :imc, CURDATE(), :id_usuario)"
+        );
+
+        $stmt_historico->execute([
+            'altura' => $altura_digitada,
+            'peso' => $peso_digitado,
+            'imc' => round($imc, 2),
+            'id_usuario' => $id_novo_usuario,
+        ]);
+
+        // Confirma os dois salvamentos
+        $pdo->commit();
+
+        header('Location: ../html/inicio.php');
+        exit;
+    } catch (PDOException $e) {
+        // Se algum dos dois salvamentos falhar, desfaz o que já foi feito
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        error_log($e->getMessage());
+        echo 'Não foi possível concluir o cadastro. Tente novamente.';
+        exit;
+    }
 }
 
 ?>
