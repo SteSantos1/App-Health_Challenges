@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../php/verifica_sessao.php';
+require_once __DIR__ . '/../php/desafios_diarios.php';
 
 $pagina_atual = 'inicio';
 $titulo_topo = 'Início';
@@ -21,12 +22,6 @@ $categorias = [
     ['nome' => 'Alimentação',        'classe' => 'alimentacao', 'emoji' => '🥗'],
     ['nome' => 'Atividades Físicas', 'classe' => 'fisico',      'emoji' => '🏃'],
     ['nome' => 'Leitura/Estudo',     'classe' => 'leitura',     'emoji' => '📚'],
-];
-
-$opcoes_hoje = [
-    ['categoria' => 'Alimentação', 'classe' => 'alimentacao', 'emoji' => '🥗', 'acao' => 'Beba 2 litros de água', 'nivel' => 'Fácil',   'nivel_classe' => 'facil',   'pontos' => 50,  'escolhido' => true],
-    ['categoria' => 'Físico',      'classe' => 'fisico',      'emoji' => '🏃', 'acao' => 'Caminhe 5 km',          'nivel' => 'Médio',   'nivel_classe' => 'medio',   'pontos' => 100, 'escolhido' => false],
-    ['categoria' => 'Leitura',     'classe' => 'leitura',     'emoji' => '📚', 'acao' => 'Leia por 40 minutos',   'nivel' => 'Difícil', 'nivel_classe' => 'dificil', 'pontos' => 150, 'escolhido' => false],
 ];
 
 $escolhido = $opcoes_hoje[0];
