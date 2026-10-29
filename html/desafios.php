@@ -184,7 +184,11 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
             </div>
             </div>
         </div>
-
+        <?php if (isset($_GET['participando'])): ?>
+            <p class="aviso-app sucesso" role="status">Você entrou no desafio!</p>
+        <?php elseif (isset($_GET['erro_participar'])): ?>
+            <p class="aviso-app erro" role="alert">Este desafio não está disponível.</p>
+        <?php endif; ?>
         <div class="filtros">
             <div class="filtros-grupo" role="group" aria-label="Filtrar por categoria">
                 <button type="button" class="chip ativo" data-filtro="todos">✨ Todos</button>
@@ -218,7 +222,10 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                         <?php if ($desafio['participando']): ?>
                             <span class="btn btn-participando"><?= icone('check', 16) ?> Participando</span>
                         <?php else: ?>
-                            <button type="button" class="btn btn-primario btn-participar">Participar</button>
+                            <form method="post" action="../php/participar_desafio.php">
+                                <input type="hidden" name="id_desafio" value="<?= (int) $desafio['id'] ?>">
+                                <button type="submit" class="btn btn-primario btn-participar">Participar</button>
+                            </form>
                         <?php endif; ?>
                     </div>
                 </article>
