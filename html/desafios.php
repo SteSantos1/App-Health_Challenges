@@ -1,20 +1,51 @@
 <?php
+require_once __DIR__ . '/../php/conexao.php';
 require_once __DIR__ . '/../php/verifica_sessao.php';
 
 $pagina_atual = 'desafios';
 $titulo_topo = 'Desafios Globais';
 
-// Exemplo: virá das tabelas desafio e participacao (Sprint 3)
-$desafios = [
-    ['titulo' => 'Maratona de Hidratação',  'categoria' => 'alimentacao', 'emoji' => '🥗', 'meta' => 'Beber 2 L de água / dia',      'fim' => '31/10', 'nivel' => 'Fácil',   'nivel_classe' => 'facil',   'participantes' => 1243, 'pontos' => 350, 'participando' => true],
-    ['titulo' => 'Corrida do Mês',          'categoria' => 'fisico',      'emoji' => '🏃', 'meta' => 'Correr 30 km no mês',          'fim' => '31/10', 'nivel' => 'Difícil', 'nivel_classe' => 'dificil', 'participantes' => 876,  'pontos' => 500, 'participando' => false],
-    ['titulo' => 'Clube da Leitura',        'categoria' => 'leitura',     'emoji' => '📚', 'meta' => 'Ler 20 min/dia por 14 dias',   'fim' => '05/11', 'nivel' => 'Médio',   'nivel_classe' => 'medio',   'participantes' => 654,  'pontos' => 400, 'participando' => false],
-    ['titulo' => 'Movimento Diário',        'categoria' => 'fisico',      'emoji' => '🏃', 'meta' => 'Fazer 30 min de atividade',    'fim' => '08/11', 'nivel' => 'Médio',   'nivel_classe' => 'medio',   'participantes' => 432,  'pontos' => 200, 'participando' => false],
-    ['titulo' => 'Alimentação Consciente',  'categoria' => 'alimentacao', 'emoji' => '🥗', 'meta' => 'Comer 3 porções de vegetais / dia', 'fim' => '10/11', 'nivel' => 'Médio', 'nivel_classe' => 'medio', 'participantes' => 987, 'pontos' => 300, 'participando' => false],
-    ['titulo' => 'Ciclismo Urbano',         'categoria' => 'fisico',      'emoji' => '🚴', 'meta' => 'Pedalar 50 km no mês',         'fim' => '31/10', 'nivel' => 'Difícil', 'nivel_classe' => 'dificil', 'participantes' => 321,  'pontos' => 450, 'participando' => false],
-    ['titulo' => 'Estudo Focado',           'categoria' => 'leitura',     'emoji' => '📚', 'meta' => 'Estudar 1 h/dia por 7 dias',   'fim' => '30/10', 'nivel' => 'Fácil',   'nivel_classe' => 'facil',   'participantes' => 1120, 'pontos' => 280, 'participando' => false],
-    ['titulo' => 'Maratonista de Livros',   'categoria' => 'leitura',     'emoji' => '📚', 'meta' => 'Concluir 1 livro',             'fim' => '15/11', 'nivel' => 'Difícil', 'nivel_classe' => 'dificil', 'participantes' => 445,  'pontos' => 600, 'participando' => false],
+$sql = "SELECT d.id_desafio,
+               d.titulo,
+               d.descricao,
+               d.categoria,
+               d.data_fim,
+               COUNT(p.id_participacao) AS participantes,
+               MAX(p.id_usuario = :id_usuario) AS participando
+        FROM desafio d
+        LEFT JOIN participacao p
+               ON p.id_desafio = d.id_desafio
+              AND p.id_grupo IS NULL
+        WHERE d.id_grupo IS NULL
+          AND CURDATE() BETWEEN d.data_inicio AND d.data_fim
+        GROUP BY d.id_desafio
+        ORDER BY d.data_fim ASC";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute([':id_usuario' => $_SESSION['id_usuario']]);
+$desafios_banco = $stmt->fetchAll();
+
+$categorias = [
+    'fisica'   => ['classe' => 'fisico',      'emoji' => '🏃'],
+    'leitura'  => ['classe' => 'leitura',     'emoji' => '📚'],
+    'alimento' => ['classe' => 'alimentacao', 'emoji' => '🥗'],
 ];
+
+$desafios = [];
+foreach ($desafios_banco as $linha) {
+    $categoria = $categorias[$linha['categoria']] ?? ['classe' => 'fisico', 'emoji' => '🎯'];
+
+    $desafios[] = [
+        'id'            => $linha['id_desafio'],
+        'titulo'        => $linha['titulo'],
+        'meta'          => $linha['descricao'],
+        'categoria'     => $categoria['classe'],
+        'emoji'         => $categoria['emoji'],
+        'fim'           => date('d/m', strtotime($linha['data_fim'])),
+        'participantes' => (int) $linha['participantes'],
+        'participando'  => (bool) $linha['participando'],
+    ];
+}
 
 $total_participando = count(array_filter($desafios, fn($d) => $d['participando']));
 $total_comunidade = array_sum(array_column($desafios, 'participantes'));
@@ -147,10 +178,10 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                     <small>Participando</small>
                     <strong><?= $total_participando ?></strong>
                 </div>
-                <div class="pilula-info ambar">
-                    <small>Comunidade</small>
-                    <strong><?= number_format($total_comunidade / 1000, 1, ',', '') ?>k</strong>
-                </div>
+            <div class="pilula-info ambar">
+                <small>Participantes</small>
+                <strong><?= $total_comunidade ?></strong>
+            </div>
             </div>
         </div>
 
@@ -166,7 +197,9 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                 <button type="button" class="chip escuro" data-situacao="participando">Participando</button>
             </div>
         </div>
-
+        <?php if (empty($desafios)): ?>
+            <p class="cartao-app com-padding texto-suave">Nenhum desafio global ativo no momento.</p>
+        <?php endif; ?>
         <div class="grade-2" id="lista-desafios">
             <?php foreach ($desafios as $desafio): ?>
                 <article class="cartao-app desafio <?= $desafio['categoria'] ?>"
@@ -174,15 +207,14 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                          data-participando="<?= $desafio['participando'] ? 'sim' : 'nao' ?>">
                     <span class="emoji-caixa" aria-hidden="true"><?= $desafio['emoji'] ?></span>
                     <div class="desafio-info">
-                        <h3><?= $desafio['titulo'] ?> <span class="selo <?= $desafio['nivel_classe'] ?>"><?= $desafio['nivel'] ?></span></h3>
+                        <h3><?= htmlspecialchars($desafio['titulo']) ?></h3>
                         <div class="desafio-meta">
-                            <span><?= icone('alvo', 16) ?> <?= $desafio['meta'] ?></span>
+                            <span><?= icone('alvo', 16) ?> <?= htmlspecialchars($desafio['meta'] ?? '') ?></span>
                             <span><?= icone('calendario', 16) ?> Até <?= $desafio['fim'] ?></span>
                             <span><?= icone('grupos', 16) ?> <?= $desafio['participantes'] ?></span>
                         </div>
                     </div>
                     <div class="desafio-lado">
-                        <span class="pts">+<?= $desafio['pontos'] ?> <small>pts</small></span>
                         <?php if ($desafio['participando']): ?>
                             <span class="btn btn-participando"><?= icone('check', 16) ?> Participando</span>
                         <?php else: ?>
