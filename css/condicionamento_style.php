@@ -243,20 +243,5 @@
                 font-size: 0.7rem;
             }
         }
-        .aviso-app {
-            padding: 14px 18px;
-            border-radius: 14px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            }
-
-        .aviso-app.sucesso {
-            background-color: var(--verde-claro);
-            color: var(--verde-escuro);
-            }
-
-        .aviso-app.erro {
-            background-color: var(--dificil-fundo);
-            color: var(--dificil);
-            }
+        
     </style>
