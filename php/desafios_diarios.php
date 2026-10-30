@@ -68,6 +68,18 @@ if (empty($desafios_banco)) {
     $desafios_banco = $consulte_sql->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// RF09: desafio escolhido pelo usuário hoje (se houver)
+$pdo->exec("CREATE TABLE IF NOT EXISTS desafio_escolhido (
+                id_usuario INT NOT NULL,
+                data_escolha DATE NOT NULL,
+                id_desafio_diario INT NOT NULL,
+                PRIMARY KEY (id_usuario, data_escolha)
+            )");
+$stmt_escolha = $pdo->prepare("SELECT id_desafio_diario FROM desafio_escolhido
+                               WHERE id_usuario = :usuario AND data_escolha = CURDATE()");
+$stmt_escolha->execute([':usuario' => $_SESSION['id_usuario'] ?? 0]);
+$id_escolhido = (int) $stmt_escolha->fetchColumn();
+
 // 3. Monta o array $opcoes_hoje com o formato [ação] + [quantidade] (RF07) e os 3 níveis (RF08)
 $opcoes_hoje = [];
 
@@ -111,7 +123,7 @@ foreach ($desafios_banco as $indice => $linha) {
         'nivel'             => $nivel_texto,
         'nivel_classe'      => $nivel_classe,
         'pontos'            => (int) $linha['pontos_recompensa'],
-        'escolhido'         => ($indice === 0),
+        'escolhido'         => ((int) $linha['id_desafio_diario'] === $id_escolhido),
     ];
 }
 

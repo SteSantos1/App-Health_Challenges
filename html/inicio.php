@@ -24,7 +24,12 @@ $categorias = [
     ['nome' => 'Leitura/Estudo',     'classe' => 'leitura',     'emoji' => '📚'],
 ];
 
-$escolhido = $opcoes_hoje[0];
+$escolhido = null;
+foreach ($opcoes_hoje as $opcao) {
+    if ($opcao['escolhido']) {
+        $escolhido = $opcao;
+    }
+}
 
 $resumo = [
     'posicao' => 4,
@@ -357,6 +362,7 @@ $conquistas = [
 
         <div class="inicio-grade">
             <div class="coluna opcoes">
+                <?php if ($escolhido): ?>
                 <section class="desafio-destaque" aria-labelledby="titulo-destaque">
                     <small><?= icone('raio', 16) ?> DESAFIO ESCOLHIDO HOJE</small>
                     <h3 id="titulo-destaque"><?= $escolhido['acao'] ?></h3>
@@ -368,11 +374,12 @@ $conquistas = [
                     </div>
                     <button type="button" class="btn-concluir">Concluir desafio ✓</button>
                 </section>
+                <?php endif; ?>
 
                 <p class="opcoes-titulo">Opções de hoje</p>
-                <div class="grade-3">
+                <form method="post" action="../php/escolher_desafio.php" class="grade-3">
                     <?php foreach ($opcoes_hoje as $opcao): ?>
-                        <button type="button" class="opcao <?= $opcao['classe'] ?> <?= $opcao['escolhido'] ? 'escolhida' : '' ?>">
+                        <button type="submit" name="id_desafio_diario" value="<?= $opcao['id_desafio_diario'] ?>" class="opcao <?= $opcao['classe'] ?> <?= $opcao['escolhido'] ? 'escolhida' : '' ?>">
                             <?php if ($opcao['escolhido']): ?>
                                 <span class="marcado"><?= icone('check', 16) ?></span>
                             <?php endif; ?>
@@ -385,7 +392,7 @@ $conquistas = [
                             </span>
                         </button>
                     <?php endforeach; ?>
-                </div>
+                </form>
             </div>
 
             <div class="coluna">
