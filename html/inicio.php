@@ -31,6 +31,24 @@ foreach ($opcoes_hoje as $opcao) {
     }
 }
 
+$desafio_concluido = false;
+if ($escolhido) {
+    $stmt_conclusao = $pdo->prepare(
+        "SELECT id_registro
+         FROM registro_conclusao
+         WHERE id_usuario = :id_usuario
+           AND id_desafio_diario = :id_desafio_diario
+           AND data_hora >= CURDATE()
+           AND data_hora < CURDATE() + INTERVAL 1 DAY
+         LIMIT 1"
+    );
+    $stmt_conclusao->execute([
+        ':id_usuario' => $_SESSION['id_usuario'],
+        ':id_desafio_diario' => $escolhido['id_desafio_diario'],
+    ]);
+    $desafio_concluido = (bool) $stmt_conclusao->fetch();
+}
+
 $resumo = [
     'posicao' => 4,
     'pontos_totais' => '8.5k',
@@ -348,6 +366,12 @@ $conquistas = [
             </div>
         </div>
 
+        <?php if (($_GET['concluido'] ?? '') === 'ja'): ?>
+            <p class="aviso-app sucesso" role="status">Este desafio já foi registrado como concluído.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'sem_desafio'): ?>
+            <p class="aviso-app erro" role="alert">Escolha um desafio de hoje antes de concluir.</p>
+        <?php endif; ?>
+
         <section class="cartao-app com-padding" style="margin-bottom: 20px;" aria-labelledby="titulo-categorias">
             <h3 class="cartao-titulo" id="titulo-categorias"><span>Categorias de saúde</span></h3>
             <div class="categorias">
@@ -372,7 +396,11 @@ $conquistas = [
                         <span><?= $escolhido['nivel'] ?></span>
                         <span class="etiqueta-pts">+<?= $escolhido['pontos'] ?> pts</span>
                     </div>
-                    <button type="button" class="btn-concluir">Concluir desafio ✓</button>
+                    <form action="../php/concluir_desafio.php" method="post">
+                        <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
+                            <?= $desafio_concluido ? 'Desafio concluído ✓' : 'Concluir desafio ✓' ?>
+                        </button>
+                    </form>
                 </section>
                 <?php endif; ?>
 
@@ -434,6 +462,14 @@ $conquistas = [
             </div>
         </div>
     </main>
+
+    <?php if (($_GET['concluido'] ?? '') === '1'): ?>
+        <script>
+            alert('Registro salvo!');
+            history.replaceState(null, '', window.location.pathname);
+        </script>
+    <?php endif; ?>
+
 </body>
 
 </html>
