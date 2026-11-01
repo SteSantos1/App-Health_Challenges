@@ -7,6 +7,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+$quantidade_feita = filter_input(INPUT_POST, 'quantidade_feita', FILTER_VALIDATE_INT);
+
+if ($quantidade_feita === false || $quantidade_feita === null || $quantidade_feita < 1) {
+    header('Location: ../html/inicio.php?erro=quantidade');
+    exit;
+}
+
 $stmt = $pdo->prepare(
     "SELECT dd.id_desafio_diario, dd.quantidade_exigida, dd.pontos_recompensa
      FROM desafio_escolhido AS de
@@ -22,6 +29,11 @@ $desafio = $stmt->fetch();
 
 if (!$desafio) {
     header('Location: ../html/inicio.php?erro=sem_desafio');
+    exit;
+}
+
+if ($quantidade_feita < (int) $desafio['quantidade_exigida']) {
+    header('Location: ../html/inicio.php?erro=meta');
     exit;
 }
 
@@ -51,7 +63,7 @@ $stmt = $pdo->prepare(
         (:quantidade_feita, :pontos_ganhos, NOW(), 1, :id_usuario, :id_desafio_diario)"
 );
 $stmt->execute([
-    ':quantidade_feita' => $desafio['quantidade_exigida'],
+    ':quantidade_feita' => $quantidade_feita,
     ':pontos_ganhos' => $desafio['pontos_recompensa'],
     ':id_usuario' => $_SESSION['id_usuario'],
     ':id_desafio_diario' => $desafio['id_desafio_diario'],
