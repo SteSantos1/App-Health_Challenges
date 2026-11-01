@@ -401,8 +401,8 @@ $conquistas = [
                         <span class="etiqueta-pts">+<?= $escolhido['pontos'] ?> pts</span>
                     </div>
                     <form action="../php/concluir_desafio.php" method="post">
-                        <label for="quantidade_feita">Quanto você atingiu? </label>
-                        <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required>
+                        <label for="quantidade_feita">Quanto você atingiu? </label><br>
+                        <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required><br><br>
                         <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
                             <?= $desafio_concluido ? 'Desafio concluído ✓' : 'Concluir desafio ✓' ?>
                         </button>
