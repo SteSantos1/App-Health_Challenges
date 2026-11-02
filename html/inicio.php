@@ -136,6 +136,33 @@ $conquistas = [
             color: var(--texto);
         }
 
+        .form-concluir {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-concluir label {
+            font-weight: 800;
+        }
+
+        .form-concluir input[type="number"] {
+            width: 100%;
+            max-width: 260px;
+            padding: 12px 14px;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            background-color: var(--branco);
+            color: var(--texto);
+            font: 600 1rem var(--fonte);
+            outline: none;
+        }
+
+        .form-concluir input[type="number"]:focus {
+            border-color: var(--verde-escuro);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
         .btn-concluir {
             width: 100%;
             padding: 16px;
@@ -149,6 +176,11 @@ $conquistas = [
 
         .btn-concluir:hover {
             background-color: var(--verde-claro);
+        }
+
+        .btn-concluir:disabled {
+            cursor: not-allowed;
+            opacity: 0.75;
         }
 
         .opcoes-titulo {
@@ -400,9 +432,9 @@ $conquistas = [
                         <span><?= $escolhido['nivel'] ?></span>
                         <span class="etiqueta-pts">+<?= $escolhido['pontos'] ?> pts</span>
                     </div>
-                    <form action="../php/concluir_desafio.php" method="post">
-                        <label for="quantidade_feita">Quanto você atingiu? </label><br>
-                        <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required><br><br>
+                    <form action="../php/concluir_desafio.php" method="post" class="form-concluir">
+                        <label for="quantidade_feita">Quanto você atingiu?</label>
+                        <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required>
                         <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
                             <?= $desafio_concluido ? 'Desafio concluído ✓' : 'Concluir desafio ✓' ?>
                         </button>
