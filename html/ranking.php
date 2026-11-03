@@ -1,44 +1,4 @@
-<?php
-require_once __DIR__ . '/../php/verifica_sessao.php';
-
-$pagina_atual = 'ranking';
-$titulo_topo = 'Ranking';
-
-$meses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-$mes_atual = $meses[(int) date('n')];
-$primeiro_nome = explode(' ', trim($_SESSION['nome']))[0];
-
-// Exemplo: virá das tabelas ranking_temporada e ranking_diario (Sprint 4)
-$rankings = [
-    'mensal' => [
-        ['nome' => 'Marina Santos',     'pontos' => 1890, 'cor' => '#F6339A'],
-        ['nome' => 'Carlos Oliveira',   'pontos' => 1650, 'cor' => '#2B7FFF'],
-        ['nome' => 'Julia Ferraz',      'pontos' => 1520, 'cor' => '#00BC7D'],
-        ['nome' => $_SESSION['nome'],   'pontos' => 1240, 'cor' => '#FF2056', 'eu' => true],
-        ['nome' => 'Pedro Alves',       'pontos' => 1180, 'cor' => '#8E51FF'],
-        ['nome' => 'Ana Rodrigues',     'pontos' => 1020, 'cor' => '#FE9A00'],
-        ['nome' => 'Lucas Ferreira',    'pontos' => 890,  'cor' => '#2B7FFF'],
-        ['nome' => 'Carla Mendes',      'pontos' => 780,  'cor' => '#00BC7D'],
-        ['nome' => 'Tiago Souza',       'pontos' => 650,  'cor' => '#00B8DB'],
-        ['nome' => 'Beatriz Lima',      'pontos' => 540,  'cor' => '#FF2056'],
-    ],
-    'diario' => [
-        ['nome' => 'Carlos Oliveira',   'pontos' => 150, 'cor' => '#2B7FFF'],
-        ['nome' => $_SESSION['nome'],   'pontos' => 100, 'cor' => '#FF2056', 'eu' => true],
-        ['nome' => 'Ana Rodrigues',     'pontos' => 100, 'cor' => '#FE9A00'],
-        ['nome' => 'Marina Santos',     'pontos' => 50,  'cor' => '#F6339A'],
-        ['nome' => 'Tiago Souza',       'pontos' => 50,  'cor' => '#00B8DB'],
-        ['nome' => 'Pedro Alves',       'pontos' => 0,   'cor' => '#8E51FF'],
-    ],
-];
-
-$textos = [
-    'mensal' => ['subtitulo' => "Classificação mensal de $mes_atual. Atualizado diariamente.", 'podio' => "Pódio de $mes_atual"],
-    'diario' => ['subtitulo' => 'Pontuação obtida pelos usuários hoje (' . date('d/m') . ').', 'podio' => 'Pódio de hoje'],
-];
-
-$medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
-?>
+<?php require_once __DIR__ . '/../php/ranking_dados.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -375,7 +335,11 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
                                 <span class="positivo">+<?= $eu['pontos'] - $lista[$minha_posicao]['pontos'] ?> pts</span>
                             </div>
                         <?php endif; ?>
-                        <p class="dica">💡 Faltam <?= $lista[0]['pontos'] - $eu['pontos'] ?> pontos para alcançar o 1º lugar!</p>
+                        <?php if ($lista[0]['pontos'] > $eu['pontos']): ?>
+                            <p class="dica">💡 Faltam <?= $lista[0]['pontos'] - $eu['pontos'] ?> pontos para alcançar o 1º lugar!</p>
+                        <?php else: ?>
+                            <p class="dica">💡 Você está empatado com o 1º lugar!</p>
+                        <?php endif; ?>
                     </section>
                 <?php endif; ?>
             </div>
