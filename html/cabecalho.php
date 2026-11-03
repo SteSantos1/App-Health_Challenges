@@ -12,6 +12,7 @@ $abas = [
     'grupos'          => ['Grupos', 'grupos.php'],
     'condicionamento' => ['Condicionamento', 'condicionamento.php'],
     'ranking'         => ['Ranking', 'ranking.php'],
+    'amigos' => ['Amigos', 'amigos.php'],
 ];
 ?>
 <aside class="lateral">
