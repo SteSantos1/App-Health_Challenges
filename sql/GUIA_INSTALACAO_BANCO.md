@@ -4,6 +4,10 @@ Este guia é para quem já tem o banco de desenvolvimento `healthchallenges` com
 
 Execute os comandos no phpMyAdmin ou MySQL Workbench, com o banco `healthchallenges` selecionado. Antes, confira cada item: os `ALTER TABLE` devem ser executados apenas se a alteração ainda não existir.
 
+## Configurar a conexão local
+
+Por padrão, a conexão usa `localhost`, banco `healthchallenges`, usuário `root` e senha vazia, como na instalação padrão do XAMPP. Se sua instalação exigir outra senha ou usuário, crie o arquivo local `php/env.local.php` com `$ENV_USERNAME` e `$ENV_PASSWORD` definidos. `php/env.local.php` é opcional e ignorado pelo Git; não o adicione ao repositório.
+
 ## 1. Guardar os pontos ganhos na conclusão
 
 Confira se a coluna já existe:
@@ -50,6 +54,12 @@ UNIQUE (id_usuario, id_desafio_diario);
 ```
 
 Esse índice preserva a chave primária `id_registro` e as chaves estrangeiras. Ele permite que um usuário conclua desafios diários diferentes, mas impede uma segunda conclusão para a mesma combinação de usuário e desafio diário.
+
+## 3. Conquistas desbloqueadas
+
+Nenhum comando manual é necessário: a tabela `conquista_usuario` é criada automaticamente no primeiro uso, e a chave única evita registrar a mesma conquista duas vezes.
+
+As conquistas de pontuação somam `desafio_diario.pontos_recompensa` das conclusões válidas: 50, 250, 500 e 1.000 pontos. As conquistas de ranking são liberadas ao alcançar o 1º, 2º ou 3º lugar no ranking mensal.
 
 ## Observação
 

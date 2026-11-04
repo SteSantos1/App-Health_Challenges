@@ -1,12 +1,17 @@
 <?php
 require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/desafios_diarios.php';
+require_once __DIR__ . '/../php/conquistas.php';
 
 $pagina_atual = 'inicio';
 $titulo_topo = 'Início';
 
 $nome = $_SESSION['nome'];
 $primeiro_nome = explode(' ', trim($nome))[0];
+$id_usuario = (int) $_SESSION['id_usuario'];
+
+desbloquear_conquistas_por_pontuacao($pdo, $id_usuario);
+$conquistas = obter_conquistas_recentes($pdo, $id_usuario);
 
 $hora = (int) date('G');
 if ($hora < 12) {
@@ -55,12 +60,6 @@ $resumo = [
     'indice' => 78,
 ];
 
-$conquistas = [
-    ['emoji' => '🌟', 'nome' => 'Primeiro Passo', 'pontos' => 50],
-    ['emoji' => '🔥', 'nome' => 'Em Chamas',      'pontos' => 200],
-    ['emoji' => '💧', 'nome' => 'Hidratado',      'pontos' => 100],
-    ['emoji' => '🏃', 'nome' => 'Corredor',       'pontos' => 300],
-];
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -486,15 +485,19 @@ $conquistas = [
                         <a href="#" class="ver-todas">Ver todas <?= icone('seta', 16) ?></a>
                     </h3>
                     <div class="conquistas-grade">
-                        <?php foreach ($conquistas as $conquista): ?>
-                            <div class="conquista-item">
-                                <span class="emoji" aria-hidden="true"><?= $conquista['emoji'] ?></span>
-                                <div>
-                                    <strong><?= $conquista['nome'] ?></strong>
-                                    <small>+<?= $conquista['pontos'] ?> pts</small>
+                        <?php if ($conquistas): ?>
+                            <?php foreach ($conquistas as $conquista): ?>
+                                <div class="conquista-item">
+                                    <span class="emoji" aria-hidden="true"><?= $conquista['emoji'] ?></span>
+                                    <div>
+                                        <strong><?= htmlspecialchars($conquista['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                        <small><?= htmlspecialchars($conquista['criterio'], ENT_QUOTES, 'UTF-8') ?></small>
+                                    </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p>As conquistas aparecerão aqui quando forem desbloqueadas.</p>
+                        <?php endif; ?>
                     </div>
                 </section>
             </div>

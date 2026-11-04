@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/verifica_sessao.php';
+require_once __DIR__ . '/conquistas.php';
 
 $pagina_atual = 'ranking';
 $titulo_topo = 'Ranking';
@@ -46,6 +47,12 @@ $stmt = $pdo->prepare("SELECT u.id_usuario, u.nome, COALESCE(rt.pontuacao_period
                        ORDER BY pontos DESC, u.nome ASC");
 $stmt->execute([':mes_ano' => $mes_ano]);
 $linhas_mensal = $stmt->fetchAll();
+
+foreach ($linhas_mensal as $indice => $linha) {
+    if ((int) $linha['pontos'] > 0) {
+        desbloquear_conquistas_por_ranking($pdo, (int) $linha['id_usuario'], $indice + 1);
+    }
+}
 
 $cores = ['#F6339A', '#2B7FFF', '#00BC7D', '#FF2056', '#8E51FF', '#FE9A00', '#00B8DB'];
 
