@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/conexao.php';
+require_once __DIR__ . '/../php/buscar_ranking_diario.php';
 
 $pagina_atual = 'ranking';
 $titulo_topo = 'Ranking';
@@ -9,32 +10,7 @@ $meses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho
 $mes_atual = $meses[(int) date('n')];
 $primeiro_nome = explode(' ', trim($_SESSION['nome']))[0];
 
-
-// RF17: ranking diário = soma dos pontos dos desafios concluídos HOJE.
-// LEFT JOIN a partir de usuario: quem não concluiu nada aparece com 0 pts.
-$paleta_cores = ['#F6339A', '#2B7FFF', '#00BC7D', '#8E51FF', '#FE9A00', '#00B8DB'];
-
-$sql_diario = "SELECT u.id_usuario, u.nome, COALESCE(SUM(dd.pontos_recompensa), 0) AS pontos
-               FROM usuario u
-               LEFT JOIN registro_conclusao rc
-                    ON rc.id_usuario = u.id_usuario
-                    AND DATE(rc.data_hora) = CURDATE()
-                LEFT JOIN desafio_diario dd
-                    ON dd.id_desafio_diario = rc.id_desafio_diario
-               GROUP BY u.id_usuario, u.nome
-               ORDER BY pontos DESC, u.nome ASC";
-
-$ranking_diario = [];
-foreach ($pdo->query($sql_diario) as $linha) {
-    $sou_eu = ((int) $linha['id_usuario'] === (int) $_SESSION['id_usuario']);
-    $ranking_diario[] = [
-        'nome'   => $linha['nome'],
-        'pontos' => (int) $linha['pontos'],
-        'cor'    => $sou_eu ? '#FF2056' : $paleta_cores[$linha['id_usuario'] % count($paleta_cores)],
-        'eu'     => $sou_eu,
-    ];
-}
-// Exemplo: virá das tabelas ranking_temporada e ranking_diario (Sprint 4)
+// Exemplo (mensal): virá da tabela ranking_temporada (Sprint 4)
 $rankings = [
     'mensal' => [
         ['nome' => 'Marina Santos',     'pontos' => 1890, 'cor' => '#F6339A'],
@@ -48,14 +24,7 @@ $rankings = [
         ['nome' => 'Tiago Souza',       'pontos' => 650,  'cor' => '#00B8DB'],
         ['nome' => 'Beatriz Lima',      'pontos' => 540,  'cor' => '#FF2056'],
     ],
-        'diario' => $ranking_diario, [
-        ['nome' => 'Carlos Oliveira',   'pontos' => 150, 'cor' => '#2B7FFF'],
-        ['nome' => $_SESSION['nome'],   'pontos' => 100, 'cor' => '#FF2056', 'eu' => true],
-        ['nome' => 'Ana Rodrigues',     'pontos' => 100, 'cor' => '#FE9A00'],
-        ['nome' => 'Marina Santos',     'pontos' => 50,  'cor' => '#F6339A'],
-        ['nome' => 'Tiago Souza',       'pontos' => 50,  'cor' => '#00B8DB'],
-        ['nome' => 'Pedro Alves',       'pontos' => 0,   'cor' => '#8E51FF'],
-    ],
+    'diario' => buscar_ranking_diario($pdo, (int) $_SESSION['id_usuario']),
 ];
 
 $textos = [
