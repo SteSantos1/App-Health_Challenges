@@ -24,7 +24,30 @@ $categorias = [
     ['nome' => 'Leitura/Estudo',     'classe' => 'leitura',     'emoji' => '📚'],
 ];
 
-$escolhido = $opcoes_hoje[0];
+$escolhido = null;
+foreach ($opcoes_hoje as $opcao) {
+    if ($opcao['escolhido']) {
+        $escolhido = $opcao;
+    }
+}
+
+$desafio_concluido = false;
+if ($escolhido) {
+    $stmt_conclusao = $pdo->prepare(
+        "SELECT id_registro
+         FROM registro_conclusao
+         WHERE id_usuario = :id_usuario
+           AND id_desafio_diario = :id_desafio_diario
+           AND data_hora >= CURDATE()
+           AND data_hora < CURDATE() + INTERVAL 1 DAY
+         LIMIT 1"
+    );
+    $stmt_conclusao->execute([
+        ':id_usuario' => $_SESSION['id_usuario'],
+        ':id_desafio_diario' => $escolhido['id_desafio_diario'],
+    ]);
+    $desafio_concluido = (bool) $stmt_conclusao->fetch();
+}
 
 $resumo = [
     'posicao' => 4,
@@ -113,6 +136,33 @@ $conquistas = [
             color: var(--texto);
         }
 
+        .form-concluir {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-concluir label {
+            font-weight: 800;
+        }
+
+        .form-concluir input[type="number"] {
+            width: 100%;
+            max-width: 260px;
+            padding: 12px 14px;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+            background-color: var(--branco);
+            color: var(--texto);
+            font: 600 1rem var(--fonte);
+            outline: none;
+        }
+
+        .form-concluir input[type="number"]:focus {
+            border-color: var(--verde-escuro);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
         .btn-concluir {
             width: 100%;
             padding: 16px;
@@ -126,6 +176,11 @@ $conquistas = [
 
         .btn-concluir:hover {
             background-color: var(--verde-claro);
+        }
+
+        .btn-concluir:disabled {
+            cursor: not-allowed;
+            opacity: 0.75;
         }
 
         .opcoes-titulo {
@@ -343,6 +398,16 @@ $conquistas = [
             </div>
         </div>
 
+        <?php if (($_GET['concluido'] ?? '') === 'ja'): ?>
+            <p class="aviso-app sucesso" role="status">Este desafio já foi registrado como concluído.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'sem_desafio'): ?>
+            <p class="aviso-app erro" role="alert">Escolha um desafio de hoje antes de concluir.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'quantidade'): ?>
+            <p class="aviso-app erro" role="alert">Informe uma quantidade válida.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'meta'): ?>
+            <p class="aviso-app erro" role="alert">Você ainda não atingiu a meta do desafio.</p>
+        <?php endif; ?>
+
         <section class="cartao-app com-padding" style="margin-bottom: 20px;" aria-labelledby="titulo-categorias">
             <h3 class="cartao-titulo" id="titulo-categorias"><span>Categorias de saúde</span></h3>
             <div class="categorias">
@@ -357,6 +422,7 @@ $conquistas = [
 
         <div class="inicio-grade">
             <div class="coluna opcoes">
+                <?php if ($escolhido): ?>
                 <section class="desafio-destaque" aria-labelledby="titulo-destaque">
                     <small><?= icone('raio', 16) ?> DESAFIO ESCOLHIDO HOJE</small>
                     <h3 id="titulo-destaque"><?= $escolhido['acao'] ?></h3>
@@ -366,13 +432,20 @@ $conquistas = [
                         <span><?= $escolhido['nivel'] ?></span>
                         <span class="etiqueta-pts">+<?= $escolhido['pontos'] ?> pts</span>
                     </div>
-                    <button type="button" class="btn-concluir">Concluir desafio ✓</button>
+                    <form action="../php/concluir_desafio.php" method="post" class="form-concluir">
+                        <label for="quantidade_feita">Quanto você atingiu?</label>
+                        <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required>
+                        <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
+                            <?= $desafio_concluido ? 'Desafio concluído ✓' : 'Concluir desafio ✓' ?>
+                        </button>
+                    </form>
                 </section>
+                <?php endif; ?>
 
                 <p class="opcoes-titulo">Opções de hoje</p>
-                <div class="grade-3">
+                <form method="post" action="../php/escolher_desafio.php" class="grade-3">
                     <?php foreach ($opcoes_hoje as $opcao): ?>
-                        <button type="button" class="opcao <?= $opcao['classe'] ?> <?= $opcao['escolhido'] ? 'escolhida' : '' ?>">
+                        <button type="submit" name="id_desafio_diario" value="<?= $opcao['id_desafio_diario'] ?>" class="opcao <?= $opcao['classe'] ?> <?= $opcao['escolhido'] ? 'escolhida' : '' ?>">
                             <?php if ($opcao['escolhido']): ?>
                                 <span class="marcado"><?= icone('check', 16) ?></span>
                             <?php endif; ?>
@@ -385,7 +458,7 @@ $conquistas = [
                             </span>
                         </button>
                     <?php endforeach; ?>
-                </div>
+                </form>
             </div>
 
             <div class="coluna">
@@ -427,6 +500,14 @@ $conquistas = [
             </div>
         </div>
     </main>
+
+    <?php if (($_GET['concluido'] ?? '') === '1'): ?>
+        <script>
+            alert('Registro salvo!');
+            history.replaceState(null, '', window.location.pathname);
+        </script>
+    <?php endif; ?>
+
 </body>
 
 </html>
