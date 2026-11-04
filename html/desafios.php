@@ -16,7 +16,6 @@ $sql = "SELECT d.id_desafio,
         LEFT JOIN participacao p
                ON p.id_desafio = d.id_desafio
               AND p.id_grupo IS NULL
-        WHERE d.id_grupo IS NULL
           AND CURDATE() BETWEEN d.data_inicio AND d.data_fim
         GROUP BY d.id_desafio
         ORDER BY d.data_fim ASC";
