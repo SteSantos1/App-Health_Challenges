@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/conexao.php';
+require_once __DIR__ . '/../php/lista_amigos.php';
 
 $pagina_atual = 'amigos';
 $titulo_topo = 'Amigos';
@@ -29,6 +30,9 @@ if ($buscou) {
         $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+
+// RF33: lista de amigos do usuário logado (solicitações aceitas)
+$amigos = buscar_amigos($pdo, (int) $_SESSION['id_usuario']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -131,6 +135,36 @@ if ($buscou) {
             margin-top: 16px;
         }
 
+        /* RF33: lista de amigos */
+        .lista-amigos {
+            margin-top: 28px;
+        }
+
+        .lista-amigos h3 {
+            padding: 22px 22px 14px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .lista-amigos .vazio {
+            padding: 22px;
+            margin: 0;
+        }
+
+        .linha-amigo {
+            display: grid;
+            grid-template-columns: 52px minmax(0, 1fr);
+            align-items: center;
+            gap: 16px;
+            padding: 14px 22px;
+        }
+
+        .linha-amigo .nome {
+            font-size: 1.1rem;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
         @media (max-width: 520px) {
             #form-busca {
                 grid-template-columns: minmax(0, 1fr);
@@ -151,6 +185,18 @@ if ($buscou) {
 
             .usuario-resultado [data-status-solicitacao]:not(:empty) {
                 grid-column: auto;
+            }
+
+            .linha-amigo {
+                grid-template-columns: 40px minmax(0, 1fr);
+                gap: 10px;
+                padding: 12px 16px;
+            }
+
+            .linha-amigo .avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -211,6 +257,23 @@ if ($buscou) {
                 <p role="status" aria-live="polite" data-status-solicitacao></p>
             </article>
         <?php endforeach; ?>
+
+        <section class="cartao-app lista-amigos" aria-label="Meus amigos">
+            <h3>Meus amigos (<?= count($amigos) ?>)</h3>
+
+            <?php if (empty($amigos)): ?>
+                <p class="texto-suave vazio">Você ainda não adicionou nenhum amigo.</p>
+            <?php else: ?>
+                <div class="lista-linhas">
+                    <?php foreach ($amigos as $amigo): ?>
+                        <div class="linha-amigo">
+                            <span class="avatar" style="background-color: <?= $amigo['cor'] ?>"><?= htmlspecialchars(iniciais($amigo['nome'])) ?></span>
+                            <div class="nome"><?= htmlspecialchars($amigo['nome'], ENT_QUOTES, 'UTF-8') ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
     </main>
 
     <script>
