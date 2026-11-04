@@ -401,7 +401,11 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
                                 <span class="positivo">+<?= $eu['pontos'] - $lista[$minha_posicao]['pontos'] ?> pts</span>
                             </div>
                         <?php endif; ?>
-                        <p class="dica">💡 Faltam <?= $lista[0]['pontos'] - $eu['pontos'] ?> pontos para alcançar o 1º lugar!</p>
+                        <?php if ($lista[0]['pontos'] > $eu['pontos']): ?>
+                            <p class="dica">💡 Faltam <?= $lista[0]['pontos'] - $eu['pontos'] ?> pontos para alcançar o 1º lugar!</p>
+                        <?php else: ?>
+                            <p class="dica">💡 Você está empatado com o 1º lugar!</p>
+                        <?php endif; ?>
                     </section>
                 <?php endif; ?>
             </div>
