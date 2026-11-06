@@ -30,21 +30,7 @@ if ($buscou) {
         $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
-function buscar_amigos($pdo, $id_usuario) {
-    $sql = "SELECT u.id_usuario, u.nome
-            FROM amizade a
-            INNER JOIN usuario u 
-                ON (u.id_usuario = a.id_usuario_remetente OR u.id_usuario = a.id_usuario_destinatario)
-            WHERE (a.id_usuario_remetente = :id_usuario OR a.id_usuario_destinatario = :id_usuario)
-              AND u.id_usuario <> :id_usuario
-              AND a.status = 'aceita'
-            ORDER BY u.nome ASC";
 
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([':id_usuario' => $id_usuario]);
-    
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 // RF33: lista de amigos do usuário logado (solicitações aceitas)
 $amigos = buscar_amigos($pdo, (int) $_SESSION['id_usuario']);
 
