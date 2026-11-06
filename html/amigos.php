@@ -29,6 +29,36 @@ if ($buscou) {
         $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+function buscar_amigos($pdo, $id_usuario) {
+    $sql = "SELECT u.id_usuario, u.nome
+            FROM amizade a
+            INNER JOIN usuario u 
+                ON (u.id_usuario = a.id_usuario_remetente OR u.id_usuario = a.id_usuario_destinatario)
+            WHERE (a.id_usuario_remetente = :id_usuario OR a.id_usuario_destinatario = :id_usuario)
+              AND u.id_usuario <> :id_usuario
+              AND a.status = 'aceita'
+            ORDER BY u.nome ASC";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':id_usuario' => $id_usuario]);
+    
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+// RF33: lista de amigos do usuário logado (solicitações aceitas)
+$amigos = buscar_amigos($pdo, (int) $_SESSION['id_usuario']);
+
+// Busca solicitações de amizade pendentes recebidas pelo usuário logado (RF31 / RF32)
+$stmt_pendentes = $pdo->prepare(
+    "SELECT a.id_usuario_remetente, a.data_conexao, u.nome
+     FROM amizade a
+     INNER JOIN usuario u ON u.id_usuario = a.id_usuario_remetente
+     WHERE a.id_usuario_destinatario = :id_usuario
+       AND a.status = 'pendente'
+     ORDER BY a.data_conexao DESC"
+);
+$stmt_pendentes->execute([':id_usuario' => $_SESSION['id_usuario']]);
+$solicitacoes_recebidas = $stmt_pendentes->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -131,6 +161,36 @@ if ($buscou) {
             margin-top: 16px;
         }
 
+        /* RF33: lista de amigos */
+        .lista-amigos {
+            margin-top: 28px;
+        }
+
+        .lista-amigos h3 {
+            padding: 22px 22px 14px;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--borda);
+        }
+
+        .lista-amigos .vazio {
+            padding: 22px;
+            margin: 0;
+        }
+
+        .linha-amigo {
+            display: grid;
+            grid-template-columns: 52px minmax(0, 1fr);
+            align-items: center;
+            gap: 16px;
+            padding: 14px 22px;
+        }
+
+        .linha-amigo .nome {
+            font-size: 1.1rem;
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
         @media (max-width: 520px) {
             #form-busca {
                 grid-template-columns: minmax(0, 1fr);
@@ -151,6 +211,18 @@ if ($buscou) {
 
             .usuario-resultado [data-status-solicitacao]:not(:empty) {
                 grid-column: auto;
+            }
+
+            .linha-amigo {
+                grid-template-columns: 40px minmax(0, 1fr);
+                gap: 10px;
+                padding: 12px 16px;
+            }
+
+            .linha-amigo .avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 0.85rem;
             }
         }
     </style>
@@ -176,6 +248,12 @@ if ($buscou) {
             <p class="aviso-app erro" role="alert">Já existe uma solicitação de amizade ou já é amigo deste usuário.</p>
         <?php elseif (($_GET['solicitacao'] ?? '') === 'enviada'): ?>
             <p class="aviso-app sucesso" role="status">Solicitação enviada com   sucesso!</p>
+        <?php elseif (($_GET['solicitacao'] ?? '') === 'aceita'): ?>
+            <p class="aviso-app sucesso" role="status">Solicitação de amizade aceita!</p>
+        <?php elseif (($_GET['solicitacao'] ?? '') === 'recusada'): ?>
+            <p class="aviso-app sucesso" role="status">Solicitação de amizade recusada.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'solicitacao'): ?>
+            <p class="aviso-app erro" role="alert">Não foi possível processar esta solicitação.</p>
         <?php endif; ?>
 
         <form id="form-busca" action="amigos.php" method="post">
@@ -211,6 +289,54 @@ if ($buscou) {
                 <p role="status" aria-live="polite" data-status-solicitacao></p>
             </article>
         <?php endforeach; ?>
+
+        <section class="cartao-app lista-amigos" aria-label="Meus amigos">
+            <h3>Meus amigos (<?= count($amigos) ?>)</h3>
+
+            <?php if (empty($amigos)): ?>
+                <p class="texto-suave vazio">Você ainda não adicionou nenhum amigo.</p>
+            <?php else: ?>
+                <div class="lista-linhas">
+                    <?php foreach ($amigos as $amigo): ?>
+                        <div class="linha-amigo">
+                            <span class="avatar"><?= htmlspecialchars(iniciais($amigo['nome'])) ?></span>
+                            <div class="nome"><?= htmlspecialchars($amigo['nome'], ENT_QUOTES, 'UTF-8') ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
+
+        <section class="cartao-app com-padding" style="margin-top: 24px;">
+            <h3 class="cartao-titulo">
+                <span>Solicitações recebidas (<?= count($solicitacoes_recebidas) ?>)</span>
+            </h3>
+
+            <?php if (empty($solicitacoes_recebidas)): ?>
+                <p class="texto-suave">Você não tem solicitações de amizade pendentes.</p>
+            <?php else: ?>
+                <div class="lista-linhas">
+                    <?php foreach ($solicitacoes_recebidas as $pedido): ?>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <span class="avatar"><?= htmlspecialchars(iniciais($amigo['nome'])) ?></span>
+                                <strong><?= htmlspecialchars($pedido['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
+                            </div>
+
+                            <form action="../php/responder_amizade.php" method="post" style="display: flex; gap: 10px; margin: 0;">
+                                <input type="hidden" name="id_remetente" value="<?= (int) $pedido['id_usuario_remetente'] ?>">
+                                <button type="submit" name="acao" value="aceitar" class="btn btn-primario" style="padding: 8px 16px; font-size: 0.95rem;">
+                                    Aceitar
+                                </button>
+                                <button type="submit" name="acao" value="recusar" class="btn btn-contorno" style="padding: 8px 16px; font-size: 0.95rem;">
+                                    Recusar
+                                </button>
+                            </form>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </section>
     </main>
 
     <script>
