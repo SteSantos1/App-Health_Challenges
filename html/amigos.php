@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/conexao.php';
+require_once __DIR__ . '/../php/lista_amigos.php';
 
 $pagina_atual = 'amigos';
 $titulo_topo = 'Amigos';

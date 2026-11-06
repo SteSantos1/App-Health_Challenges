@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/verifica_sessao.php';
+require_once __DIR__ . '/conquistas.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../html/inicio.php');
@@ -68,6 +69,8 @@ $stmt->execute([
     ':id_usuario' => $_SESSION['id_usuario'],
     ':id_desafio_diario' => $desafio['id_desafio_diario'],
 ]);
+
+desbloquear_conquistas_por_pontuacao($pdo, (int) $_SESSION['id_usuario']);
 
 header('Location: ../html/inicio.php?concluido=1');
 exit;
