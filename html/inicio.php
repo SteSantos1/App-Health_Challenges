@@ -11,7 +11,8 @@ $primeiro_nome = explode(' ', trim($nome))[0];
 $id_usuario = (int) $_SESSION['id_usuario'];
 
 desbloquear_conquistas_por_pontuacao($pdo, $id_usuario);
-$conquistas = obter_conquistas_recentes($pdo, $id_usuario);
+$conquistas = obter_conquistas_usuario($pdo, $id_usuario);
+$total_conquistas_desbloqueadas = array_sum(array_column($conquistas, 'desbloqueada'));
 
 $hora = (int) date('G');
 if ($hora < 12) {
@@ -308,16 +309,45 @@ $resumo = [
             gap: 12px;
         }
 
+        .conquista-contagem {
+            color: var(--texto-suave);
+            font-family: var(--fonte);
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
         .conquista-item {
             display: flex;
             align-items: center;
             gap: 14px;
             padding: 16px;
             border-radius: 16px;
+            border: 1px solid transparent;
+            min-width: 0;
+        }
+
+        .conquista-item.conquista-desbloqueada {
+            background-color: #ECFDF5;
+            border-color: #A7F3D0;
+        }
+
+        .conquista-item.conquista-pendente {
             background-color: #F8FAFC;
+            color: var(--texto-suave);
+        }
+
+        .conquista-pendente .emoji {
+            filter: grayscale(1);
+            opacity: 0.55;
+        }
+
+        .conquista-detalhes {
+            min-width: 0;
         }
 
         .conquista-item .emoji {
+            flex: 0 0 auto;
             font-size: 1.7rem;
         }
 
@@ -327,8 +357,28 @@ $resumo = [
         }
 
         .conquista-item small {
-            color: var(--ambar-texto);
+            display: block;
+            margin-top: 4px;
+            color: var(--texto-suave);
+        }
+
+        .conquista-status {
+            display: inline-flex;
+            margin-top: 8px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
             font-weight: 700;
+        }
+
+        .conquista-desbloqueada .conquista-status {
+            background-color: #D1FAE5;
+            color: #047857;
+        }
+
+        .conquista-pendente .conquista-status {
+            background-color: #E2E8F0;
+            color: #475569;
         }
 
         .ver-todas {
@@ -481,23 +531,25 @@ $resumo = [
 
                 <section class="cartao-app com-padding" aria-labelledby="titulo-conquistas">
                     <h3 class="cartao-titulo" id="titulo-conquistas">
-                        <span>Conquistas recentes</span>
-                        <a href="#" class="ver-todas">Ver todas <?= icone('seta', 16) ?></a>
+                        <span>Conquistas</span>
+                        <span class="conquista-contagem" aria-label="<?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas">
+                            <?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas
+                        </span>
                     </h3>
                     <div class="conquistas-grade">
-                        <?php if ($conquistas): ?>
-                            <?php foreach ($conquistas as $conquista): ?>
-                                <div class="conquista-item">
-                                    <span class="emoji" aria-hidden="true"><?= $conquista['emoji'] ?></span>
-                                    <div>
-                                        <strong><?= htmlspecialchars($conquista['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
-                                        <small><?= htmlspecialchars($conquista['criterio'], ENT_QUOTES, 'UTF-8') ?></small>
-                                    </div>
+                        <?php foreach ($conquistas as $conquista): ?>
+                            <?php $classe_status = $conquista['desbloqueada'] ? 'conquista-desbloqueada' : 'conquista-pendente'; ?>
+                            <div class="conquista-item <?= $classe_status ?>">
+                                <span class="emoji" aria-hidden="true"><?= $conquista['emoji'] ?></span>
+                                <div class="conquista-detalhes">
+                                    <strong><?= htmlspecialchars($conquista['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                    <small><?= htmlspecialchars($conquista['criterio'], ENT_QUOTES, 'UTF-8') ?></small>
+                                    <span class="conquista-status">
+                                        <?= $conquista['desbloqueada'] ? 'Desbloqueada' : 'Pendente' ?>
+                                    </span>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p>As conquistas aparecerão aqui quando forem desbloqueadas.</p>
-                        <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 </section>
             </div>

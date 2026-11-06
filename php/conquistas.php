@@ -112,27 +112,31 @@ function desbloquear_conquistas_por_ranking(PDO $pdo, int $idUsuario, int $posic
     }
 }
 
-function obter_conquistas_recentes(PDO $pdo, int $idUsuario, int $limite = 4): array
+function obter_conquistas_usuario(PDO $pdo, int $idUsuario): array
 {
     garantir_tabela_conquistas($pdo);
 
     $stmt = $pdo->prepare(
-        'SELECT chave_conquista
+        'SELECT chave_conquista, data_desbloqueio
          FROM conquista_usuario
          WHERE id_usuario = :id_usuario
-         ORDER BY data_desbloqueio DESC, id_conquista_usuario DESC
-         LIMIT :limite'
+         ORDER BY data_desbloqueio DESC, id_conquista_usuario DESC'
     );
-    $stmt->bindValue(':id_usuario', $idUsuario, PDO::PARAM_INT);
-    $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
-    $stmt->execute();
+    $stmt->execute([':id_usuario' => $idUsuario]);
 
-    $catalogo = catalogo_conquistas();
+    $desbloqueadas = [];
+    foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $linha) {
+        $desbloqueadas[$linha['chave_conquista']] = $linha['data_desbloqueio'];
+    }
+
     $conquistas = [];
-    foreach ($stmt->fetchAll(PDO::FETCH_COLUMN) as $chave) {
-        if (isset($catalogo[$chave])) {
-            $conquistas[] = $catalogo[$chave];
-        }
+    foreach (catalogo_conquistas() as $chave => $conquista) {
+        $dataDesbloqueio = $desbloqueadas[$chave] ?? null;
+        $conquistas[] = $conquista + [
+            'chave' => $chave,
+            'desbloqueada' => $dataDesbloqueio !== null,
+            'data_desbloqueio' => $dataDesbloqueio,
+        ];
     }
 
     return $conquistas;
