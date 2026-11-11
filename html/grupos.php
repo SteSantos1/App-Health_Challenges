@@ -1,19 +1,4 @@
-<?php
-require_once __DIR__ . '/../php/verifica_sessao.php';
-
-$pagina_atual = 'grupos';
-$titulo_topo = 'Grupos';
-
-// Exemplo: virá das tabelas grupo e membro_usuario (Sprint 5)
-$grupos = [
-    ['nome' => 'Guerreiros do Fitness', 'emoji' => '💪', 'descricao' => 'Grupo focado em atividades físicas intensas e consistentes', 'admin' => true,  'membros' => ['AS', 'CM', 'RC', 'BL', 'TS'], 'desafios_ativos' => 3, 'posicao' => 1, 'pontos' => 1240],
-    ['nome' => 'Leitores Ávidos',       'emoji' => '📚', 'descricao' => 'Para quem ama livros e quer cultivar o hábito da leitura diária', 'admin' => false, 'membros' => ['AR', 'PA', 'AS', 'LN'], 'desafios_ativos' => 2, 'posicao' => 3, 'pontos' => 1240],
-    ['nome' => 'Saúde & Bem-estar',     'emoji' => '🌿', 'descricao' => 'Equilíbrio entre corpo e mente para uma vida mais saudável', 'admin' => false, 'membros' => ['MS', 'CO', 'AS', 'JF', 'PA', 'TS'], 'desafios_ativos' => 4, 'posicao' => 4, 'pontos' => 1240],
-];
-
-$medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
-$cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB'];
-?>
+<?php require_once __DIR__ . '/../php/grupos_dados.php'; ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -83,32 +68,6 @@ $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB
             color: var(--laranja);
         }
 
-        .grupo-posicao {
-            text-align: right;
-        }
-
-        .grupo-posicao small {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            color: var(--texto-fraco);
-        }
-
-        .grupo-posicao strong {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
-        .grupo-posicao em {
-            font-style: normal;
-            color: var(--texto-fraco);
-        }
-
         .grupo-rodape {
             display: flex;
             align-items: center;
@@ -138,6 +97,31 @@ $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB
             color: var(--verde-escuro);
         }
 
+        .grupo-acoes {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-left: auto;
+        }
+
+        .grupo-acoes .btn {
+            padding: 8px 16px;
+        }
+
+        .sem-grupos {
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .sem-grupos h3 {
+            font-size: 1.3rem;
+        }
+
+        .sem-grupos p {
+            color: var(--texto-suave);
+            margin-top: 8px;
+        }
+
         @media (max-width: 600px) {
             .grupo-cartao {
                 padding: 20px;
@@ -150,11 +134,6 @@ $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB
             .grupo-topo .emoji-caixa {
                 width: 56px;
                 height: 56px;
-            }
-
-            .grupo-posicao {
-                text-align: left;
-                width: 100%;
             }
         }
     </style>
@@ -175,43 +154,48 @@ $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB
             </div>
         </div>
 
+        <?php if ($aviso): ?>
+            <p class="aviso-app <?= $aviso[0] ?>" role="<?= $aviso[0] === 'erro' ? 'alert' : 'status' ?>"><?= htmlspecialchars($aviso[1]) ?></p>
+        <?php endif; ?>
+
         <div class="lista-grupos">
+            <?php if (!$grupos): ?>
+                <div class="cartao-app sem-grupos">
+                    <h3>Você ainda não participa de nenhum grupo</h3>
+                    <p>Crie um grupo para competir com seus colegas ou peça para entrar em um.</p>
+                </div>
+            <?php endif; ?>
+
             <?php foreach ($grupos as $grupo): ?>
                 <article class="cartao-app grupo-cartao">
                     <div class="grupo-topo">
-                        <span class="emoji-caixa" aria-hidden="true"><?= $grupo['emoji'] ?></span>
+                        <span class="emoji-caixa" aria-hidden="true"><?= htmlspecialchars(iniciais($grupo['nome'])) ?></span>
                         <div class="grupo-info">
                             <h3>
-                                <?= $grupo['nome'] ?>
+                                <?= htmlspecialchars($grupo['nome']) ?>
                                 <?php if ($grupo['admin']): ?>
                                     <span class="selo admin">Admin</span>
                                 <?php endif; ?>
                             </h3>
-                            <p><?= $grupo['descricao'] ?></p>
+                            <p><?= htmlspecialchars($grupo['descricao']) ?></p>
                             <div class="grupo-numeros">
-                                <span><?= icone('grupos', 18) ?> <?= count($grupo['membros']) ?> membros</span>
-                                <span><span class="raio"><?= icone('raio', 18) ?></span> <?= $grupo['desafios_ativos'] ?> desafios ativos</span>
+                                <span><?= icone('grupos', 18) ?> <?= $grupo['total_membros'] ?> <?= $grupo['total_membros'] === 1 ? 'membro' : 'membros' ?></span>
+                                <span><span class="raio"><?= icone('raio', 18) ?></span> <?= $grupo['desafios_ativos'] ?> <?= $grupo['desafios_ativos'] === 1 ? 'desafio ativo' : 'desafios ativos' ?></span>
                             </div>
-                        </div>
-                        <div class="grupo-posicao">
-                            <small>SUA POSIÇÃO</small>
-                            <strong>
-                                <?php if (isset($medalhas[$grupo['posicao']])): ?>
-                                    <span aria-label="<?= $grupo['posicao'] ?>º lugar"><?= $medalhas[$grupo['posicao']] ?></span>
-                                <?php else: ?>
-                                    <em>#<?= $grupo['posicao'] ?></em>
-                                <?php endif; ?>
-                                <?= $grupo['pontos'] ?> pts
-                            </strong>
                         </div>
                     </div>
                     <div class="grupo-rodape">
                         <div class="avatares">
                             <?php foreach ($grupo['membros'] as $i => $sigla): ?>
-                                <span class="avatar pequeno" style="background-color: <?= $cores_avatar[$i % count($cores_avatar)] ?>"><?= $sigla ?></span>
+                                <span class="avatar pequeno" style="background-color: <?= $cores_avatar[$i % count($cores_avatar)] ?>" aria-hidden="true"><?= htmlspecialchars($sigla) ?></span>
                             <?php endforeach; ?>
                         </div>
-                        <a href="#" class="ver-detalhes">Ver detalhes <?= icone('seta', 16) ?></a>
+                        <div class="grupo-acoes">
+                            <?php if ($grupo['admin']): ?>
+                                <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-editar-<?= $grupo['id'] ?>').showModal()">Editar</button>
+                            <?php endif; ?>
+                            <a href="#" class="ver-detalhes">Ver detalhes <?= icone('seta', 16) ?></a>
+                        </div>
                     </div>
                 </article>
             <?php endforeach; ?>
@@ -223,19 +207,42 @@ $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB
             <h3>Criar grupo</h3>
             <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
         </div>
-        <form class="form-app" method="post" action="#">
+        <form class="form-app" method="post" action="../php/criar_grupo.php">
             <div>
                 <label for="nome-grupo">Nome do grupo</label>
                 <input type="text" id="nome-grupo" name="nome" maxlength="100" required>
             </div>
             <div>
                 <label for="descricao-grupo">Descrição</label>
-                <textarea id="descricao-grupo" name="descricao" rows="3" required></textarea>
+                <textarea id="descricao-grupo" name="descricao" rows="3" maxlength="500" required></textarea>
             </div>
             <p class="texto-suave">Você será o administrador do grupo.</p>
             <button type="submit" class="btn btn-primario btn-bloco">Criar grupo</button>
         </form>
     </dialog>
+
+    <?php foreach ($grupos as $grupo): ?>
+        <?php if ($grupo['admin']): ?>
+            <dialog class="janela" id="janela-editar-<?= $grupo['id'] ?>">
+                <div class="janela-topo">
+                    <h3>Editar grupo</h3>
+                    <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
+                </div>
+                <form class="form-app" method="post" action="../php/editar_grupo.php">
+                    <input type="hidden" name="id_grupo" value="<?= $grupo['id'] ?>">
+                    <div>
+                        <label for="nome-grupo-<?= $grupo['id'] ?>">Nome do grupo</label>
+                        <input type="text" id="nome-grupo-<?= $grupo['id'] ?>" name="nome" maxlength="100" value="<?= htmlspecialchars($grupo['nome']) ?>" required>
+                    </div>
+                    <div>
+                        <label for="descricao-grupo-<?= $grupo['id'] ?>">Descrição</label>
+                        <textarea id="descricao-grupo-<?= $grupo['id'] ?>" name="descricao" rows="3" maxlength="500" required><?= htmlspecialchars($grupo['descricao']) ?></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primario btn-bloco">Salvar alterações</button>
+                </form>
+            </dialog>
+        <?php endif; ?>
+    <?php endforeach; ?>
 
     <dialog class="janela" id="janela-entrar">
         <div class="janela-topo">
