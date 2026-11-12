@@ -6,7 +6,7 @@ require_once __DIR__ . '/icones.php';
 $pagina_atual = 'grupos';
 $titulo_topo = 'Grupos';
 
-$id_usuario = $_SESSION['id_usuario'];
+$id_usuario = (int) $_SESSION['id_usuario'];
 
 $stmt = $pdo->prepare("SELECT g.id_grupo,
                               g.nome_grupo,
@@ -27,7 +27,7 @@ $stmt = $pdo->prepare("SELECT g.id_grupo,
 $stmt->execute([':id_usuario' => $id_usuario]);
 $linhas_grupos = $stmt->fetchAll();
 
-$stmt = $pdo->prepare("SELECT m.id_grupo, u.nome
+$stmt = $pdo->prepare("SELECT m.id_grupo, m.id_usuario, m.papel, u.nome
                        FROM membro_usuario m
                        INNER JOIN usuario u ON u.id_usuario = m.id_usuario
                        WHERE m.id_grupo IN (SELECT id_grupo
@@ -37,33 +37,49 @@ $stmt = $pdo->prepare("SELECT m.id_grupo, u.nome
 $stmt->execute([':id_usuario' => $id_usuario]);
 
 $membros_por_grupo = [];
+$membros_detalhados_por_grupo = [];
 foreach ($stmt->fetchAll() as $membro) {
     $membros_por_grupo[$membro['id_grupo']][] = iniciais($membro['nome']);
+    $membros_detalhados_por_grupo[$membro['id_grupo']][] = [
+        'id'    => (int) $membro['id_usuario'],
+        'nome'  => $membro['nome'],
+        'papel' => $membro['papel'],
+    ];
 }
 
 $grupos = [];
 foreach ($linhas_grupos as $linha) {
+    $membros_detalhados = $membros_detalhados_por_grupo[$linha['id_grupo']] ?? [];
     $grupos[] = [
-        'id'              => (int) $linha['id_grupo'],
-        'nome'            => $linha['nome_grupo'],
-        'descricao'       => $linha['descricao'] ?? '',
-        'admin'           => $linha['papel'] === 'Administrador',
-        'total_membros'   => (int) $linha['total_membros'],
-        'membros'         => array_slice($membros_por_grupo[$linha['id_grupo']] ?? [], 0, 6),
-        'desafios_ativos' => (int) $linha['desafios_ativos'],
+        'id'                 => (int) $linha['id_grupo'],
+        'nome'               => $linha['nome_grupo'],
+        'descricao'          => $linha['descricao'] ?? '',
+        'admin'              => $linha['papel'] === 'Administrador',
+        'total_membros'      => (int) $linha['total_membros'],
+        'membros'            => array_slice($membros_por_grupo[$linha['id_grupo']] ?? [], 0, 6),
+        'membros_detalhados' => $membros_detalhados,
+        'total_admins'       => count(array_filter($membros_detalhados, function ($membro) {
+            return $membro['papel'] === 'Administrador';
+        })),
+        'desafios_ativos'    => (int) $linha['desafios_ativos'],
     ];
 }
 
 $mensagens = [
-    'criado'  => ['sucesso', 'Grupo criado! Você é o administrador dele.'],
-    'editado' => ['sucesso', 'Grupo atualizado.'],
+    'criado'             => ['sucesso', 'Grupo criado! Você é o administrador dele.'],
+    'editado'            => ['sucesso', 'Grupo atualizado.'],
+    'membro_removido'     => ['sucesso', 'Membro removido do grupo.'],
+    'membro_promovido'    => ['sucesso', 'Membro promovido a administrador.'],
 ];
 
 $erros = [
-    'dados'     => 'Preencha o nome (até 100 caracteres) e a descrição (até 500 caracteres).',
-    'nome'      => 'Já existe um grupo com esse nome. Escolha outro.',
-    'permissao' => 'Só o administrador pode editar este grupo.',
-    'salvar'    => 'Não foi possível salvar o grupo. Tente de novo.',
+    'dados'             => 'Preencha o nome (até 100 caracteres) e a descrição (até 500 caracteres).',
+    'nome'              => 'Já existe um grupo com esse nome. Escolha outro.',
+    'permissao'         => 'Só o administrador pode editar este grupo.',
+    'permissao_membros' => 'Só o administrador deste grupo pode gerenciar os membros.',
+    'membro_invalido'   => 'Os dados da operação de membros são inválidos.',
+    'membro_operacao'   => 'A operação não foi realizada. Verifique se o membro pertence ao grupo e se a ação é permitida.',
+    'salvar'            => 'Não foi possível salvar o grupo. Tente de novo.',
 ];
 
 $aviso = null;
