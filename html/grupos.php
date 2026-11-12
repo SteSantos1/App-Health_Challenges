@@ -108,6 +108,38 @@
             padding: 8px 16px;
         }
 
+        .lista-membros {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .membro-gerenciado {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid var(--borda);
+            border-radius: 14px;
+        }
+
+        .membro-gerenciado > div:first-child {
+            min-width: 0;
+        }
+
+        .membro-acoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .membro-acoes .btn {
+            padding: 8px 12px;
+        }
+
         .sem-grupos {
             padding: 40px 30px;
             text-align: center;
@@ -125,6 +157,12 @@
         @media (max-width: 600px) {
             .grupo-cartao {
                 padding: 20px;
+            }
+
+            .grupo-rodape,
+            .grupo-acoes,
+            .membro-gerenciado {
+                flex-wrap: wrap;
             }
 
             .grupo-topo {
@@ -193,6 +231,7 @@
                         <div class="grupo-acoes">
                             <?php if ($grupo['admin']): ?>
                                 <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-editar-<?= $grupo['id'] ?>').showModal()">Editar</button>
+                                <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-membros-<?= $grupo['id'] ?>').showModal()">Gerenciar membros</button>
                             <?php endif; ?>
                             <a href="#" class="ver-detalhes">Ver detalhes <?= icone('seta', 16) ?></a>
                         </div>
@@ -223,6 +262,47 @@
 
     <?php foreach ($grupos as $grupo): ?>
         <?php if ($grupo['admin']): ?>
+            <dialog class="janela" id="janela-membros-<?= $grupo['id'] ?>">
+                <div class="janela-topo">
+                    <h3>Membros de <?= htmlspecialchars($grupo['nome']) ?></h3>
+                    <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
+                </div>
+                <div class="lista-membros">
+                    <?php foreach ($grupo['membros_detalhados'] as $membro): ?>
+                        <?php $membro_admin = $membro['papel'] === 'Administrador'; ?>
+                        <div class="membro-gerenciado">
+                            <div>
+                                <strong><?= htmlspecialchars($membro['nome']) ?></strong>
+                                <?php if ($membro_admin): ?>
+                                    <span class="selo admin">Admin</span>
+                                <?php else: ?>
+                                    <span class="texto-suave">Membro</span>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($membro['id'] !== $id_usuario): ?>
+                                <div class="membro-acoes">
+                                    <?php if (!$membro_admin): ?>
+                                        <form method="post" action="../php/gerenciar_membro_grupo.php">
+                                            <input type="hidden" name="id_grupo" value="<?= $grupo['id'] ?>">
+                                            <input type="hidden" name="id_membro" value="<?= $membro['id'] ?>">
+                                            <input type="hidden" name="acao" value="promover">
+                                            <button type="submit" class="btn btn-contorno">Promover</button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <?php if (!$membro_admin || $grupo['total_admins'] > 1): ?>
+                                        <form method="post" action="../php/gerenciar_membro_grupo.php">
+                                            <input type="hidden" name="id_grupo" value="<?= $grupo['id'] ?>">
+                                            <input type="hidden" name="id_membro" value="<?= $membro['id'] ?>">
+                                            <input type="hidden" name="acao" value="remover">
+                                            <button type="submit" class="btn btn-contorno">Remover</button>
+                                        </form>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </dialog>
             <dialog class="janela" id="janela-editar-<?= $grupo['id'] ?>">
                 <div class="janela-topo">
                     <h3>Editar grupo</h3>
