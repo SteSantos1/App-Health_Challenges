@@ -16,9 +16,8 @@ $stmt = $pdo->prepare("SELECT g.id_grupo,
                                FROM membro_usuario m
                                WHERE m.id_grupo = g.id_grupo) AS total_membros,
                               (SELECT COUNT(*)
-                               FROM desafio d
-                               WHERE d.id_grupo = g.id_grupo
-                                 AND CURDATE() BETWEEN d.data_inicio AND d.data_fim) AS desafios_ativos
+                                FROM desafio d
+                                WHERE CURDATE() BETWEEN d.data_inicio AND d.data_fim) AS desafios_ativos
                        FROM grupo g
                        INNER JOIN membro_usuario mu
                                ON mu.id_grupo = g.id_grupo
@@ -93,3 +92,69 @@ if (isset($_GET['erro'])) {
 }
 
 $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB'];
+
+// RF23 - Grupos disponíveis para solicitar ingresso
+
+$stmt = $pdo->prepare("
+    SELECT g.id_grupo,
+           g.nome_grupo,
+           g.descricao,
+           (SELECT COUNT(*)
+            FROM membro_usuario m
+            WHERE m.id_grupo = g.id_grupo) AS total_membros,
+           (SELECT s.status
+            FROM solicitacao_ingresso_grupo s
+            WHERE s.id_grupo = g.id_grupo
+              AND s.id_usuario = :id_usuario_solicitacao
+            ORDER BY s.id_solicitacao DESC
+            LIMIT 1) AS status_solicitacao
+    FROM grupo g
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM membro_usuario m
+        WHERE m.id_grupo = g.id_grupo
+          AND m.id_usuario = :id_usuario_membro
+    )
+    ORDER BY g.nome_grupo
+");
+
+$stmt->execute([
+    ':id_usuario_solicitacao' => $id_usuario,
+    ':id_usuario_membro' => $id_usuario
+]);
+
+$grupos_disponiveis = $stmt->fetchAll();
+
+// RF24 - Convites recebidos pelo usuário
+
+$stmt = $pdo->prepare("
+    SELECT c.id_convite,
+           c.id_grupo,
+           g.nome_grupo,
+           g.descricao,
+           u.nome AS nome_remetente,
+           c.data_convite
+    FROM convite_grupo c
+    INNER JOIN grupo g ON g.id_grupo = c.id_grupo
+    INNER JOIN usuario u ON u.id_usuario = c.id_usuario_remetente
+    WHERE c.id_usuario_convidado = :id_usuario
+      AND c.status = 'pendente'
+    ORDER BY c.data_convite DESC
+");
+
+$stmt->execute([':id_usuario' => $id_usuario]);
+
+$convites_recebidos = $stmt->fetchAll();
+
+// RF24 - Usuários disponíveis para receber convites
+
+$stmt = $pdo->prepare("
+    SELECT id_usuario, nome
+    FROM usuario
+    WHERE id_usuario <> :id_usuario
+    ORDER BY nome
+");
+
+$stmt->execute([':id_usuario' => $id_usuario]);
+
+$usuarios_para_convidar = $stmt->fetchAll();
