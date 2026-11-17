@@ -167,9 +167,9 @@
             <div>
                 <label for="tipo">Tipo</label>
                 <select id="tipo" name="tipo" required>
-                    <option value="Caminhada">🚶 Caminhada</option>
-                    <option value="Corrida">🏃 Corrida</option>
-                    <option value="Ciclismo">🚴 Ciclismo</option>
+                    <option value="Caminhada">Caminhada</option>
+                    <option value="Corrida">Corrida</option>
+                    <option value="Ciclismo">Ciclismo</option>
                 </select>
             </div>
             <div class="form-linha">

@@ -310,7 +310,7 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
             <div class="painel-ranking" data-painel="<?= $tipo ?>" data-subtitulo="<?= htmlspecialchars($textos[$tipo]['subtitulo']) ?>" <?= $tipo !== 'mensal' ? 'hidden' : '' ?>>
 
                 <section class="sua-posicao" aria-label="Sua posição">
-                    <span class="avatar" style="background-color: <?= $eu['cor'] ?>">
+                    <span class="avatar" style="background-color: <?= $eu['cor'] ?>" aria-hidden="true">
                         <?= htmlspecialchars(iniciais($eu['nome'])) ?>
                         <em><?= $minha_posicao ?></em>
                     </span>
@@ -325,16 +325,16 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
                 </section>
 
                 <section class="cartao-app com-padding">
-                    <h3 class="cartao-titulo" style="justify-content: center;"><span>🏆 <?= $textos[$tipo]['podio'] ?></span></h3>
+                    <h3 class="cartao-titulo" style="justify-content: center;"><span><span aria-hidden="true">🏆</span> <?= $textos[$tipo]['podio'] ?></span></h3>
                     <div class="podio">
                         <?php foreach ($ordem_podio as $j => $indice): ?>
                             <?php if (!isset($lista[$indice])) continue; $pessoa = $lista[$indice]; ?>
                             <div class="podio-lugar <?= $classes_podio[$j] ?>">
                                 <?php if ($indice === 0): ?><span class="coroa" aria-hidden="true">👑</span><?php endif; ?>
-                                <span class="avatar" style="background-color: <?= $pessoa['cor'] ?>"><?= htmlspecialchars(iniciais($pessoa['nome'])) ?></span>
+                                <span class="avatar" style="background-color: <?= $pessoa['cor'] ?>" aria-hidden="true"><?= htmlspecialchars(iniciais($pessoa['nome'])) ?></span>
                                 <strong><?= htmlspecialchars(explode(' ', $pessoa['nome'])[0]) ?></strong>
                                 <span class="pts-podio"><?= $pessoa['pontos'] ?> pts</span>
-                                <div class="degrau"><span aria-label="<?= $indice + 1 ?>º lugar"><?= $medalhas[$indice + 1] ?></span></div>
+                                <div class="degrau"><span role="img" aria-label="<?= $indice + 1 ?>º lugar"><?= $medalhas[$indice + 1] ?></span></div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -346,7 +346,7 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
                         <?php foreach ($lista as $i => $pessoa): ?>
                             <div class="linha-ranking <?= !empty($pessoa['eu']) ? 'eu' : '' ?>">
                                 <span class="posicao">#<?= $i + 1 ?></span>
-                                <span class="avatar" style="background-color: <?= $pessoa['cor'] ?>"><?= htmlspecialchars(iniciais($pessoa['nome'])) ?></span>
+                                <span class="avatar" style="background-color: <?= $pessoa['cor'] ?>" aria-hidden="true"><?= htmlspecialchars(iniciais($pessoa['nome'])) ?></span>
                                 <div>
                                     <div class="nome"><?= htmlspecialchars($pessoa['nome']) ?></div>
                                     <div class="barra"><span style="width: <?= round($pessoa['pontos'] / $maior * 100) ?>%"></span></div>
@@ -371,9 +371,9 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
                             </div>
                         <?php endif; ?>
                         <?php if ($lista[0]['pontos'] > $eu['pontos']): ?>
-                            <p class="dica">💡 Faltam <?= $lista[0]['pontos'] - $eu['pontos'] ?> pontos para alcançar o 1º lugar!</p>
+                            <p class="dica"><span aria-hidden="true">💡</span> Faltam <?= $lista[0]['pontos'] - $eu['pontos'] ?> pontos para alcançar o 1º lugar!</p>
                         <?php else: ?>
-                            <p class="dica">💡 Você está empatado com o 1º lugar!</p>
+                            <p class="dica"><span aria-hidden="true">💡</span> Você está empatado com o 1º lugar!</p>
                         <?php endif; ?>
                     </section>
                 <?php endif; ?>

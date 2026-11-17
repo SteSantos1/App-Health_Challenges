@@ -286,7 +286,7 @@ $solicitacoes_recebidas = $stmt_pendentes->fetchAll(PDO::FETCH_ASSOC);
                 <div class="lista-linhas">
                     <?php foreach ($amigos as $amigo): ?>
                         <div class="linha-amigo">
-                            <span class="avatar"><?= htmlspecialchars(iniciais($amigo['nome'])) ?></span>
+                            <span class="avatar" aria-hidden="true"><?= htmlspecialchars(iniciais($amigo['nome'])) ?></span>
                             <div class="nome"><?= htmlspecialchars($amigo['nome'], ENT_QUOTES, 'UTF-8') ?></div>
                         </div>
                     <?php endforeach; ?>
@@ -306,7 +306,7 @@ $solicitacoes_recebidas = $stmt_pendentes->fetchAll(PDO::FETCH_ASSOC);
                     <?php foreach ($solicitacoes_recebidas as $pedido): ?>
                         <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 0; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <span class="avatar"><?= htmlspecialchars(iniciais($amigo['nome'])) ?></span>
+                                <span class="avatar" aria-hidden="true"><?= htmlspecialchars(iniciais($pedido['nome'])) ?></span>
                                 <strong><?= htmlspecialchars($pedido['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
                             </div>
 

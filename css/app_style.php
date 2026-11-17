@@ -223,7 +223,7 @@ h1, h2, h3 {
     border-bottom: 1px solid var(--borda);
 }
 
-.topo-app h2 {
+.topo-app .topo-titulo {
     font-size: 1.3rem;
     font-weight: 600;
 }
@@ -669,7 +669,7 @@ dialog.janela::backdrop {
         padding: 12px 16px;
     }
 
-    .topo-app h2 {
+    .topo-app .topo-titulo {
         font-size: 1.05rem;
         white-space: nowrap;
         overflow: hidden;
@@ -750,5 +750,17 @@ dialog.janela::backdrop {
 .aviso-app.erro {
     background-color: var(--dificil-fundo);
     color: var(--dificil);
+}
+
+.so-leitor {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 </style>

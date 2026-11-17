@@ -436,7 +436,7 @@ $resumo = [
     <main class="conteudo">
         <div class="cabeca-pagina">
             <div>
-                <h1><?= $saudacao ?>, <?= htmlspecialchars($primeiro_nome) ?>! 👋</h1>
+                <h1><?= $saudacao ?>, <?= htmlspecialchars($primeiro_nome) ?>! <span aria-hidden="true">👋</span></h1>
                 <p>Escolha um dos desafios de hoje e acumule pontos.</p>
             </div>
             <div class="grupo-botoes">
@@ -485,7 +485,7 @@ $resumo = [
                         <label for="quantidade_feita">Quanto você atingiu?</label>
                         <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required>
                         <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
-                            <?= $desafio_concluido ? 'Desafio concluído ✓' : 'Concluir desafio ✓' ?>
+                            <?= $desafio_concluido ? 'Desafio concluído' : 'Concluir desafio' ?> <span aria-hidden="true">✓</span>
                         </button>
                     </form>
                 </section>
@@ -494,7 +494,7 @@ $resumo = [
                 <p class="opcoes-titulo">Opções de hoje</p>
                 <form method="post" action="../php/escolher_desafio.php" class="grade-3">
                     <?php foreach ($opcoes_hoje as $opcao): ?>
-                        <button type="submit" name="id_desafio_diario" value="<?= $opcao['id_desafio_diario'] ?>" class="opcao <?= $opcao['classe'] ?> <?= $opcao['escolhido'] ? 'escolhida' : '' ?>">
+                        <button type="submit" name="id_desafio_diario" value="<?= $opcao['id_desafio_diario'] ?>" class="opcao <?= $opcao['classe'] ?> <?= $opcao['escolhido'] ? 'escolhida' : '' ?>" aria-pressed="<?= $opcao['escolhido'] ? 'true' : 'false' ?>">
                             <?php if ($opcao['escolhido']): ?>
                                 <span class="marcado"><?= icone('check', 16) ?></span>
                             <?php endif; ?>
@@ -503,7 +503,7 @@ $resumo = [
                             <span class="acao"><?= $opcao['acao'] ?></span>
                             <span class="rodape-opcao">
                                 <span class="selo <?= $opcao['nivel_classe'] ?>"><?= $opcao['nivel'] ?></span>
-                                <span class="pts">+<?= $opcao['pontos'] ?></span>
+                                <span class="pts">+<?= $opcao['pontos'] ?><span class="so-leitor"> pontos</span></span>
                             </span>
                         </button>
                     <?php endforeach; ?>
@@ -532,8 +532,9 @@ $resumo = [
                 <section class="cartao-app com-padding" aria-labelledby="titulo-conquistas">
                     <h3 class="cartao-titulo" id="titulo-conquistas">
                         <span>Conquistas</span>
-                        <span class="conquista-contagem" aria-label="<?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas">
-                            <?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas
+                        <span class="conquista-contagem">
+                            <span aria-hidden="true"><?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas</span>
+                            <span class="so-leitor"><?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas</span>
                         </span>
                     </h3>
                     <div class="conquistas-grade">

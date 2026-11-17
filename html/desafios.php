@@ -191,14 +191,14 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
         <?php endif; ?>
         <div class="filtros">
             <div class="filtros-grupo" role="group" aria-label="Filtrar por categoria">
-                <button type="button" class="chip ativo" data-filtro="todos">✨ Todos</button>
-                <button type="button" class="chip" data-filtro="alimentacao">🥗 Alimentação</button>
-                <button type="button" class="chip" data-filtro="fisico">🏃 Físico</button>
-                <button type="button" class="chip" data-filtro="leitura">📚 Leitura</button>
+                <button type="button" class="chip ativo" data-filtro="todos" aria-pressed="true"><span aria-hidden="true">✨</span> Todos</button>
+                <button type="button" class="chip" data-filtro="alimentacao" aria-pressed="false"><span aria-hidden="true">🥗</span> Alimentação</button>
+                <button type="button" class="chip" data-filtro="fisico" aria-pressed="false"><span aria-hidden="true">🏃</span> Físico</button>
+                <button type="button" class="chip" data-filtro="leitura" aria-pressed="false"><span aria-hidden="true">📚</span> Leitura</button>
             </div>
             <div class="filtros-grupo" role="group" aria-label="Filtrar por participação">
-                <button type="button" class="chip escuro ativo" data-situacao="todos">Todos</button>
-                <button type="button" class="chip escuro" data-situacao="participando">Participando</button>
+                <button type="button" class="chip escuro ativo" data-situacao="todos" aria-pressed="true">Todos</button>
+                <button type="button" class="chip escuro" data-situacao="participando" aria-pressed="false">Participando</button>
             </div>
         </div>
         <?php if (empty($desafios)): ?>
@@ -215,7 +215,7 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                         <div class="desafio-meta">
                             <span><?= icone('alvo', 16) ?> <?= htmlspecialchars($desafio['meta'] ?? '') ?></span>
                             <span><?= icone('calendario', 16) ?> Até <?= $desafio['fim'] ?></span>
-                            <span><?= icone('grupos', 16) ?> <?= $desafio['participantes'] ?></span>
+                            <span><?= icone('grupos', 16) ?> <?= $desafio['participantes'] ?><span class="so-leitor"> participantes</span></span>
                         </div>
                     </div>
                     <div class="desafio-lado">
@@ -248,8 +248,12 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
 
         document.querySelectorAll('[data-filtro]').forEach(function (botao) {
             botao.addEventListener('click', function () {
-                document.querySelectorAll('[data-filtro]').forEach(b => b.classList.remove('ativo'));
+                document.querySelectorAll('[data-filtro]').forEach(function (b) {
+                    b.classList.remove('ativo');
+                    b.setAttribute('aria-pressed', 'false');
+                });
                 botao.classList.add('ativo');
+                botao.setAttribute('aria-pressed', 'true');
                 filtroCategoria = botao.dataset.filtro;
                 aplicarFiltros();
             });
@@ -257,8 +261,12 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
 
         document.querySelectorAll('[data-situacao]').forEach(function (botao) {
             botao.addEventListener('click', function () {
-                document.querySelectorAll('[data-situacao]').forEach(b => b.classList.remove('ativo'));
+                document.querySelectorAll('[data-situacao]').forEach(function (b) {
+                    b.classList.remove('ativo');
+                    b.setAttribute('aria-pressed', 'false');
+                });
                 botao.classList.add('ativo');
+                botao.setAttribute('aria-pressed', 'true');
                 filtroSituacao = botao.dataset.situacao;
                 aplicarFiltros();
             });
