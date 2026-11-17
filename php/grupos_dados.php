@@ -16,9 +16,8 @@ $stmt = $pdo->prepare("SELECT g.id_grupo,
                                FROM membro_usuario m
                                WHERE m.id_grupo = g.id_grupo) AS total_membros,
                               (SELECT COUNT(*)
-                               FROM desafio d
-                               WHERE d.id_grupo = g.id_grupo
-                                 AND CURDATE() BETWEEN d.data_inicio AND d.data_fim) AS desafios_ativos
+                                FROM desafio d
+                                WHERE CURDATE() BETWEEN d.data_inicio AND d.data_fim) AS desafios_ativos
                        FROM grupo g
                        INNER JOIN membro_usuario mu
                                ON mu.id_grupo = g.id_grupo
@@ -63,6 +62,33 @@ foreach ($linhas_grupos as $linha) {
         })),
         'desafios_ativos'    => (int) $linha['desafios_ativos'],
     ];
+}
+
+// RF20 - Buscar solicitações pendentes dos grupos administrados
+
+$stmt = $pdo->prepare("
+    SELECT s.id_solicitacao,
+           s.id_grupo,
+           s.id_usuario,
+           u.nome,
+           s.data_solicitacao
+    FROM solicitacao_ingresso_grupo s
+    INNER JOIN usuario u
+        ON u.id_usuario = s.id_usuario
+    INNER JOIN membro_usuario admin
+        ON admin.id_grupo = s.id_grupo
+       AND admin.id_usuario = :id_admin
+       AND admin.papel = 'Administrador'
+    WHERE s.status = 'pendente'
+    ORDER BY s.data_solicitacao ASC
+");
+
+$stmt->execute([':id_admin' => $id_usuario]);
+
+$solicitacoes_por_grupo = [];
+
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $solicitacao) {
+    $solicitacoes_por_grupo[$solicitacao['id_grupo']][] = $solicitacao;
 }
 
 $mensagens = [
