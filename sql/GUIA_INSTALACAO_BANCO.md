@@ -2,6 +2,8 @@
 
 Este guia é para quem já tem o banco de desenvolvimento `healthchallenges` com as tabelas e os dados-base do projeto. Ele lista somente os dois ajustes aplicados manualmente para as conclusões dos desafios diários.
 
+Para reunir todas as alterações de banco necessárias ao projeto em um só lugar, consulte `TODAS AS ALTERAÇÕES.sql`. Esse arquivo inclui verificações para evitar reaplicar colunas e índices já existentes, cria as tabelas de solicitações/convites quando necessário e inclui os dados-base enviados pela equipe.
+
 Execute os comandos no phpMyAdmin ou MySQL Workbench, com o banco `healthchallenges` selecionado. Antes, confira cada item: os `ALTER TABLE` devem ser executados apenas se a alteração ainda não existir.
 
 ## Configurar a conexão local
@@ -63,4 +65,4 @@ As conquistas de pontuação somam `desafio_diario.pontos_recompensa` das conclu
 
 ## Observação
 
-O script `alteracoes_sprint3.sql` é uma alteração anterior, já disponível no repositório, para a funcionalidade de desafios globais. Este guia não pede que ele seja executado novamente.
+`TODAS AS ALTERAÇÕES.sql` também reúne a alteração de `id_grupo` do script `alteracoes_sprint3.sql`. Use o arquivo consolidado para atualizar um banco existente; não execute os scripts antigos em sequência sem conferir quais alterações já foram aplicadas.
