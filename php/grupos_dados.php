@@ -16,8 +16,9 @@ $stmt = $pdo->prepare("SELECT g.id_grupo,
                                FROM membro_usuario m
                                WHERE m.id_grupo = g.id_grupo) AS total_membros,
                               (SELECT COUNT(*)
-                                FROM desafio d
-                                WHERE CURDATE() BETWEEN d.data_inicio AND d.data_fim) AS desafios_ativos
+                               FROM desafio d
+                               WHERE d.id_grupo = g.id_grupo
+                               AND CURDATE() BETWEEN d.data_inicio AND d.data_fim) AS desafios_ativos
                        FROM grupo g
                        INNER JOIN membro_usuario mu
                                ON mu.id_grupo = g.id_grupo
@@ -64,6 +65,37 @@ foreach ($linhas_grupos as $linha) {
     ];
 }
 
+$stmt = $pdo->prepare(
+    "SELECT d.id_desafio,
+            d.id_grupo,
+            d.titulo,
+            d.descricao,
+            d.categoria,
+            d.data_fim,
+            d.tipo_meta,
+            d.valor_meta,
+            COUNT(p.id_participacao) AS total_participantes,
+            MAX(p.id_usuario = :id_usuario) AS participando
+     FROM desafio d
+     LEFT JOIN participacao p
+            ON p.id_desafio = d.id_desafio
+           AND p.id_grupo = d.id_grupo
+     WHERE d.id_grupo IN (
+         SELECT id_grupo
+         FROM membro_usuario
+         WHERE id_usuario = :id_usuario
+     )
+       AND CURDATE() BETWEEN d.data_inicio AND d.data_fim
+     GROUP BY d.id_desafio
+     ORDER BY d.id_grupo, d.data_fim"
+);
+$stmt->execute([':id_usuario' => $id_usuario]);
+
+$desafios_por_grupo = [];
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $desafio) {
+    $desafios_por_grupo[$desafio['id_grupo']][] = $desafio;
+}
+
 // RF20 - Buscar solicitações pendentes dos grupos administrados
 
 $stmt = $pdo->prepare("
@@ -96,6 +128,7 @@ $mensagens = [
     'editado'            => ['sucesso', 'Grupo atualizado.'],
     'membro_removido'     => ['sucesso', 'Membro removido do grupo.'],
     'membro_promovido'    => ['sucesso', 'Membro promovido a administrador.'],
+    'participando'       => ['sucesso', 'Você entrou no desafio!'],
 ];
 
 $erros = [
@@ -105,6 +138,9 @@ $erros = [
     'permissao_membros' => 'Só o administrador deste grupo pode gerenciar os membros.',
     'membro_invalido'   => 'Os dados da operação de membros são inválidos.',
     'membro_operacao'   => 'A operação não foi realizada. Verifique se o membro pertence ao grupo e se a ação é permitida.',
+    'participacao_dados'   => 'Os dados do desafio são inválidos.',
+    'participacao_grupo'   => 'Você não participa deste grupo.',
+    'participacao_desafio' => 'O desafio não está ativo ou não pertence a este grupo.',
     'salvar'            => 'Não foi possível salvar o grupo. Tente de novo.',
 ];
 

@@ -275,6 +275,34 @@
                             </div>
                         </div>
                     </div>
+                    <?php foreach ($desafios_por_grupo[$grupo['id']] ?? [] as $desafio): ?>
+                        <article class="cartao-app" style="margin-top: 16px; padding: 16px;">
+                            <strong><?= htmlspecialchars($desafio['titulo']) ?></strong>
+
+                            <p><?= htmlspecialchars($desafio['descricao']) ?></p>
+                            <p>
+                                Meta: <?= (int) $desafio['valor_meta'] ?>
+                                <?= htmlspecialchars($desafio['tipo_meta']) ?>
+                            </p>
+
+                            <?php if ($desafio['participando']): ?>
+                                <span class="btn btn-participando">Participando</span>
+                            <?php else: ?>
+                                <form method="post" action="../php/participar_desafio_grupo.php">
+                                    <input type="hidden"
+                                        name="id_grupo"
+                                        value="<?= (int) $grupo['id'] ?>">
+                                    <input type="hidden"
+                                        name="id_desafio"
+                                        value="<?= (int) $desafio['id_desafio'] ?>">
+                                    <button type="submit" class="btn btn-primario">
+                                        Participar
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </article>
+                    <?php endforeach; ?>
+
                     <div class="grupo-rodape">
                         <div class="avatares">
                             <?php foreach ($grupo['membros'] as $i => $sigla): ?>
@@ -285,10 +313,8 @@
                             <?php if ($grupo['admin']): ?>
                                 <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-editar-<?= $grupo['id'] ?>').showModal()">Editar</button>
                                 <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-membros-<?= $grupo['id'] ?>').showModal()">Gerenciar membros</button>
-                                <button type="button" class="btn btn-contorno"
-    onclick="document.getElementById('janela-convidar-<?= $grupo['id'] ?>').showModal()">
-    Convidar usuário
-</button>
+                                <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-convidar-<?= $grupo['id'] ?>').showModal()">Convidar usuário</button>
+                                <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-desafio-<?= $grupo['id'] ?>').showModal()">Criar desafio</button>
                                 <?php endif; ?>
                             <a href="#" class="ver-detalhes">Ver detalhes <?= icone('seta', 16) ?></a>
                         </div>
@@ -473,6 +499,98 @@
                     <button type="submit" class="btn btn-primario btn-bloco">Salvar alterações</button>
                 </form>
             </dialog>
+
+            <dialog class="janela"
+                    id="janela-desafio-<?= $grupo['id'] ?>"
+                    aria-labelledby="titulo-desafio-<?= $grupo['id'] ?>">
+
+                <div class="janela-topo">
+                    <h3 id="titulo-desafio-<?= $grupo['id'] ?>">
+                        Criar desafio interno
+                    </h3>
+                    <button type="button"
+                            class="janela-fechar"
+                            aria-label="Fechar"
+                            onclick="this.closest('dialog').close()">✕</button>
+                </div>
+
+                <form class="form-app"
+                    method="post"
+                    action="../php/criar_desafio_grupo.php">
+
+                    <input type="hidden"
+                        name="id_grupo"
+                        value="<?= (int) $grupo['id'] ?>">
+
+                    <div>
+                        <label for="titulo-desafio-<?= $grupo['id'] ?>">Título</label>
+                        <input type="text"
+                            id="titulo-desafio-<?= $grupo['id'] ?>"
+                            name="titulo"
+                            maxlength="100"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="descricao-desafio-<?= $grupo['id'] ?>">Descrição</label>
+                        <textarea id="descricao-desafio-<?= $grupo['id'] ?>"
+                                name="descricao"
+                                maxlength="500"
+                                required></textarea>
+                    </div>
+
+                    <div>
+                        <label for="categoria-desafio-<?= $grupo['id'] ?>">Categoria</label>
+                        <select id="categoria-desafio-<?= $grupo['id'] ?>"
+                                name="categoria"
+                                required>
+                            <option value="fisica">Física</option>
+                            <option value="leitura">Leitura</option>
+                            <option value="alimento">Alimentação</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="tipo-meta-<?= $grupo['id'] ?>">Tipo da meta</label>
+                        <input type="text"
+                            id="tipo-meta-<?= $grupo['id'] ?>"
+                            name="tipo_meta"
+                            placeholder="km, horas, porções..."
+                            maxlength="30"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="valor-meta-<?= $grupo['id'] ?>">Valor da meta</label>
+                        <input type="number"
+                            id="valor-meta-<?= $grupo['id'] ?>"
+                            name="valor_meta"
+                            min="1"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="inicio-desafio-<?= $grupo['id'] ?>">Data inicial</label>
+                        <input type="date"
+                            id="inicio-desafio-<?= $grupo['id'] ?>"
+                            name="data_inicio"
+                            required>
+                    </div>
+
+                    <div>
+                        <label for="fim-desafio-<?= $grupo['id'] ?>">Data final</label>
+                        <input type="date"
+                            id="fim-desafio-<?= $grupo['id'] ?>"
+                            name="data_fim"
+                            required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primario btn-bloco">
+                        Criar desafio interno
+                    </button>
+                </form>
+            </dialog>
+
             <dialog class="janela" id="janela-convidar-<?= $grupo['id'] ?>">
                 <div class="janela-topo">
                     <h3>Convidar usuário</h3>
