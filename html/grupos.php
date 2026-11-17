@@ -7,6 +7,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupos | Health Challenges</title>
     <?php include __DIR__ . '/../css/app_style.php'; ?>
+
+
+<?php if (!empty($convites_recebidos)): ?>
+    <section style="margin-bottom: 30px;">
+        <h2 style="margin-bottom: 16px;">Convites recebidos</h2>
+
+        <div class="lista-grupos">
+            <?php foreach ($convites_recebidos as $convite): ?>
+                <article class="cartao-app grupo-cartao">
+                    <div class="grupo-topo">
+                        <span class="emoji-caixa" aria-hidden="true">
+                            <?= htmlspecialchars(iniciais($convite['nome_grupo'])) ?>
+                        </span>
+
+                        <div class="grupo-info">
+                            <h3><?= htmlspecialchars($convite['nome_grupo']) ?></h3>
+
+                            <p><?= htmlspecialchars($convite['descricao'] ?? '') ?></p>
+
+                            <p>
+                                Convite enviado por
+                                <?= htmlspecialchars($convite['nome_remetente']) ?>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grupo-rodape">
+                        <div class="grupo-acoes">
+                            <form method="post" action="../php/responder_convite_grupo.php">
+                                <input type="hidden" name="id_convite"
+                                    value="<?= (int) $convite['id_convite'] ?>">
+                                <input type="hidden" name="acao" value="aceitar">
+
+                                <button type="submit" class="btn btn-primario">
+                                    Aceitar
+                                </button>
+                            </form>
+
+                            <form method="post" action="../php/responder_convite_grupo.php">
+                                <input type="hidden" name="id_convite"
+                                    value="<?= (int) $convite['id_convite'] ?>">
+                                <input type="hidden" name="acao" value="recusar">
+
+                                <button type="submit" class="btn btn-contorno">
+                                    Recusar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
+
+
     <style>
         .lista-grupos {
             display: flex;
@@ -232,7 +288,11 @@
                             <?php if ($grupo['admin']): ?>
                                 <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-editar-<?= $grupo['id'] ?>').showModal()">Editar</button>
                                 <button type="button" class="btn btn-contorno" onclick="document.getElementById('janela-membros-<?= $grupo['id'] ?>').showModal()">Gerenciar membros</button>
-                            <?php endif; ?>
+                                <button type="button" class="btn btn-contorno"
+    onclick="document.getElementById('janela-convidar-<?= $grupo['id'] ?>').showModal()">
+    Convidar usuário
+</button>
+                                <?php endif; ?>
                             <a href="#" class="ver-detalhes">Ver detalhes <?= icone('seta', 16) ?></a>
                         </div>
                     </div>
@@ -241,24 +301,114 @@
         </div>
     </main>
 
-    <dialog class="janela" id="janela-criar">
-        <div class="janela-topo">
-            <h3>Criar grupo</h3>
-            <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
+    
+<dialog class="janela" id="janela-entrar">
+    <div class="janela-topo">
+        <h3>Explorar grupos</h3>
+        <button type="button" class="janela-fechar"
+                aria-label="Fechar"
+                onclick="this.closest('dialog').close()">
+            <?= icone('fechar', 18) ?>
+        </button>
+    </div>
+
+    <div class="form-app">
+        <?php if (empty($grupos_disponiveis)): ?>
+            <p class="texto-suave">Não existem grupos disponíveis no momento.</p>
+        <?php else: ?>
+
+            <?php foreach ($grupos_disponiveis as $grupo_disponivel): ?>
+                <div class="cartao-app" style="padding: 16px; margin-bottom: 12px;">
+                    <strong>
+                        <?= htmlspecialchars($grupo_disponivel['nome_grupo']) ?>
+                    </strong>
+
+                    <p class="texto-suave">
+                        <?= htmlspecialchars($grupo_disponivel['descricao'] ?? '') ?>
+                    </p>
+
+                    <p class="texto-suave">
+                        <?= (int) $grupo_disponivel['total_membros'] ?>
+                        membros
+                    </p>
+
+                    <?php if ($grupo_disponivel['status_solicitacao'] === 'pendente'): ?>
+
+                        <span class="selo">Solicitação pendente</span>
+
+                    <?php else: ?>
+
+                        <form method="post" action="../php/solicitar_ingresso_grupo.php">
+                            <input type="hidden" name="id_grupo"
+                                   value="<?= (int) $grupo_disponivel['id_grupo'] ?>">
+
+                            <button type="submit" class="btn btn-primario btn-bloco">
+                                Solicitar ingresso
+                            </button>
+                        </form>
+
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+
+
+<dialog class="janela" id="janela-convidar-<?= $grupo['id'] ?>">
+    <div class="janela-topo">
+        <h3>Convidar usuário</h3>
+
+        <button type="button" class="janela-fechar"
+            aria-label="Fechar"
+            onclick="this.closest('dialog').close()">
+            <?= icone('fechar', 18) ?>
+        </button>
+    </div>
+
+    <form class="form-app" method="post"
+        action="../php/enviar_convite_grupo.php">
+
+        <input type="hidden" name="id_grupo"
+            value="<?= $grupo['id'] ?>">
+
+        <div>
+            <label for="usuario-convidado-<?= $grupo['id'] ?>">
+                Selecione o usuário
+            </label>
+
+            <select id="usuario-convidado-<?= $grupo['id'] ?>"
+                name="id_usuario_convidado" required>
+
+                <option value="">Escolha um usuário</option>
+
+                <?php
+                $ids_membros = array_column(
+                    $grupo['membros_detalhados'],
+                    'id'
+                );
+
+                foreach ($usuarios_para_convidar as $usuario):
+                    if (!in_array((int) $usuario['id_usuario'], $ids_membros, true)):
+                ?>
+                    <option value="<?= (int) $usuario['id_usuario'] ?>">
+                        <?= htmlspecialchars($usuario['nome']) ?>
+                    </option>
+                <?php
+                    endif;
+                endforeach;
+                ?>
+            </select>
         </div>
-        <form class="form-app" method="post" action="../php/criar_grupo.php">
-            <div>
-                <label for="nome-grupo">Nome do grupo</label>
-                <input type="text" id="nome-grupo" name="nome" maxlength="100" required>
-            </div>
-            <div>
-                <label for="descricao-grupo">Descrição</label>
-                <textarea id="descricao-grupo" name="descricao" rows="3" maxlength="500" required></textarea>
-            </div>
-            <p class="texto-suave">Você será o administrador do grupo.</p>
-            <button type="submit" class="btn btn-primario btn-bloco">Criar grupo</button>
-        </form>
-    </dialog>
+
+        <button type="submit" class="btn btn-primario btn-bloco">
+            Enviar convite
+        </button>
+    </form>
+</dialog>
+
+
+        <?php endif; ?>
+    </div>
+</dialog>
+
 
     <?php foreach ($grupos as $grupo): ?>
         <?php if ($grupo['admin']): ?>
