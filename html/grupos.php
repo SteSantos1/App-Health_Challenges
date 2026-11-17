@@ -418,6 +418,48 @@
                     <button type="button" class="janela-fechar" aria-label="Fechar" onclick="this.closest('dialog').close()"><?= icone('fechar', 18) ?></button>
                 </div>
                 <div class="lista-membros">
+
+    <?php
+    $solicitacoes_grupo = $solicitacoes_por_grupo[$grupo['id']] ?? [];
+    ?>
+
+    <?php if (!empty($solicitacoes_grupo)): ?>
+        <h4>Solicitações de ingresso</h4>
+
+        <?php foreach ($solicitacoes_grupo as $solicitacao): ?>
+            <div class="membro-gerenciado">
+                <div>
+                    <strong><?= htmlspecialchars($solicitacao['nome']) ?></strong>
+                    <p class="texto-suave">Solicitou entrada no grupo.</p>
+                </div>
+
+                <div class="membro-acoes">
+                    <form method="post" action="../php/responder_solicitacao_grupo.php">
+                        <input type="hidden" name="id_solicitacao"
+                            value="<?= (int) $solicitacao['id_solicitacao'] ?>">
+                        <input type="hidden" name="acao" value="aprovar">
+
+                        <button type="submit" class="btn btn-primario">
+                            Aprovar
+                        </button>
+                    </form>
+
+                    <form method="post" action="../php/responder_solicitacao_grupo.php">
+                        <input type="hidden" name="id_solicitacao"
+                            value="<?= (int) $solicitacao['id_solicitacao'] ?>">
+                        <input type="hidden" name="acao" value="recusar">
+
+                        <button type="submit" class="btn btn-contorno">
+                            Recusar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <?php endforeach; ?>
+
+        <hr>
+    <?php endif; ?>
+
                     <?php foreach ($grupo['membros_detalhados'] as $membro): ?>
                         <?php $membro_admin = $membro['papel'] === 'Administrador'; ?>
                         <div class="membro-gerenciado">

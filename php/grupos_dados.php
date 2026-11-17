@@ -64,6 +64,33 @@ foreach ($linhas_grupos as $linha) {
     ];
 }
 
+// RF20 - Buscar solicitações pendentes dos grupos administrados
+
+$stmt = $pdo->prepare("
+    SELECT s.id_solicitacao,
+           s.id_grupo,
+           s.id_usuario,
+           u.nome,
+           s.data_solicitacao
+    FROM solicitacao_ingresso_grupo s
+    INNER JOIN usuario u
+        ON u.id_usuario = s.id_usuario
+    INNER JOIN membro_usuario admin
+        ON admin.id_grupo = s.id_grupo
+       AND admin.id_usuario = :id_admin
+       AND admin.papel = 'Administrador'
+    WHERE s.status = 'pendente'
+    ORDER BY s.data_solicitacao ASC
+");
+
+$stmt->execute([':id_admin' => $id_usuario]);
+
+$solicitacoes_por_grupo = [];
+
+foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $solicitacao) {
+    $solicitacoes_por_grupo[$solicitacao['id_grupo']][] = $solicitacao;
+}
+
 $mensagens = [
     'criado'             => ['sucesso', 'Grupo criado! Você é o administrador dele.'],
     'editado'            => ['sucesso', 'Grupo atualizado.'],
