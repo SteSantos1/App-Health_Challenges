@@ -27,10 +27,10 @@ $abas = [
     </div>
 
     <div class="lateral-usuario">
-        <span class="avatar"><?= htmlspecialchars(iniciais($nome_usuario)) ?></span>
+        <span class="avatar" aria-hidden="true"><?= htmlspecialchars(iniciais($nome_usuario)) ?></span>
         <div>
             <strong><?= htmlspecialchars($nome_usuario) ?></strong>
-            <span>⭐ <?= $pontos_mes ?> pts</span>
+            <span><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts</span>
         </div>
     </div>
 
@@ -53,9 +53,9 @@ $abas = [
 </aside>
 
 <header class="topo-app">
-    <h2><?= htmlspecialchars($titulo_topo) ?></h2>
+    <p class="topo-titulo"><?= htmlspecialchars($titulo_topo) ?></p>
     <div class="topo-direita">
-        <span class="selo-pontos">⭐ <?= $pontos_mes ?> pts<span class="selo-extra"> este mês</span></span>
+        <span class="selo-pontos"><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts<span class="selo-extra"> este mês</span></span>
         <a href="../php/logout.php" class="topo-sair" aria-label="Sair"><?= icone('sair', 20) ?></a>
     </div>
 </header>

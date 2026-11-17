@@ -82,6 +82,7 @@
             document.getElementById('passo1').style.display = 'none';
             document.getElementById('passo2').style.display = 'block';
             document.getElementById('barra-progresso').style.width = '100%';
+            document.querySelector('#passo2 h1').focus();
         }
     }
 
@@ -89,5 +90,6 @@
         document.getElementById('passo1').style.display = 'block';
         document.getElementById('passo2').style.display = 'none';
         document.getElementById('barra-progresso').style.width = '50%';
+        document.querySelector('#passo1 h1').focus();
     }
 </script>
