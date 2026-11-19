@@ -84,6 +84,7 @@
         dados.append('email', inputEmail.value.trim());
         
         status.textContent = 'Verificando e-mail...';
+        status.className = 'aviso-app informacao';
 
         try {
             const resposta = await fetch('../php/verificar_email.php', {
@@ -98,12 +99,14 @@
         
         const resultado = await resposta.json();
         status.textContent = resultado.mensagem;
+        status.className = resultado.disponivel ? 'aviso-app sucesso' : 'aviso-app erro';
         
         if (!resultado.disponivel) {
             return;
         }
         } catch (erro) {
             status.textContent = 'Não foi possível verificar o e-mail. Tente novamente.';
+            status.className = 'aviso-app erro';
             return;
         }
         

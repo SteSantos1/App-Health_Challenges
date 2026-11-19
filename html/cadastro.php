@@ -9,12 +9,6 @@
 </head>
 
 <body>
-        <?php if (($_GET['erro'] ?? '') === 'email-em-uso'): ?>
-            <p class="aviso-app erro" role="alert">Este email já esta em uso.</p>
-        <?php elseif (($_GET['erro'] ?? '') === 'erro-2'): ?>
-            <p class="aviso-app erro" role="alert">Error message 2.</p>
-        <?php endif; ?>
-
     <header>
         <span class="folha folha-1"></span>
         <span class="folha folha-2"></span>
@@ -22,6 +16,12 @@
         <h2>Health Challenges</h2>
     </header>
     <main>
+        <?php if (($_GET['erro'] ?? '') === 'email-em-uso'): ?>
+            <p class="aviso-app erro" role="alert">Este e-mail já está em uso.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'erro-2'): ?>
+            <p class="aviso-app erro" role="alert">Error message 2.</p>
+        <?php endif; ?>
+
         <form action="../php/registro.php" method="post">
 
             <div class="fundo-barra" aria-hidden="true">
