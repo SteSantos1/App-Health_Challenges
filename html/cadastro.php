@@ -9,6 +9,12 @@
 </head>
 
 <body>
+        <?php if (($_GET['erro'] ?? '') === 'email-em-uso'): ?>
+            <p class="aviso-app erro" role="alert">Este email já esta em uso.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'erro-2'): ?>
+            <p class="aviso-app erro" role="alert">Error message 2.</p>
+        <?php endif; ?>
+
     <header>
         <span class="folha folha-1"></span>
         <span class="folha folha-2"></span>
@@ -38,6 +44,7 @@
                     <label for="email">E-mail</label>
                     <br>
                     <input type="email" name="email" id="email" autocomplete="email" required>
+                    <p id="email-status" role="status" aria-live="polite"></p>
                 </div>
                 <div>
                     <label for="password">Senha</label>

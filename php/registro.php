@@ -36,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     $stmt->execute();
 
     if ($stmt->fetch()) {
-        echo 'Este email já está cadastrado.';
+        header('Location: ../html/cadastro.php?erro=email-em-uso', true, 303);
         exit;
     }
 

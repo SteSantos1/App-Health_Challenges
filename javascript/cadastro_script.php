@@ -64,7 +64,7 @@
         inputPeso.value = valor;
     });
 
-    function avancarPasso() {
+    async function avancarPasso() {
         const inputsPasso1 = document.querySelectorAll('#passo1 input');
         let tudoCerto = true;
 
@@ -78,13 +78,43 @@
             }
         }
 
+        
+        const status = document.getElementById('email-status');
+        const dados = new FormData();
+        dados.append('email', inputEmail.value.trim());
+        
+        status.textContent = 'Verificando e-mail...';
+
+        try {
+            const resposta = await fetch('../php/verificar_email.php', {
+            method: 'POST',
+            body: dados,
+            headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!resposta.ok) {
+            throw new Error('Falha ao verificar o e-mail');
+        }
+        
+        const resultado = await resposta.json();
+        status.textContent = resultado.mensagem;
+        
+        if (!resultado.disponivel) {
+            return;
+        }
+        } catch (erro) {
+            status.textContent = 'Não foi possível verificar o e-mail. Tente novamente.';
+            return;
+        }
+        
         if (tudoCerto) {
             document.getElementById('passo1').style.display = 'none';
             document.getElementById('passo2').style.display = 'block';
             document.getElementById('barra-progresso').style.width = '100%';
             document.querySelector('#passo2 h1').focus();
         }
-    }
+}
+
 
     function voltarPasso() {
         document.getElementById('passo1').style.display = 'block';
