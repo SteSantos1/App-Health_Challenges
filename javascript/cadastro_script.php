@@ -21,6 +21,49 @@
     });
 
     const inputEmail = document.getElementById('email');
+    let timerEmail;
+    let requisicaoEmail = 0;
+
+    async function verificarEmail() {
+        const requisicao = ++requisicaoEmail;
+        const status = document.getElementById('email-status');
+        const dados = new FormData();
+        dados.append('email', inputEmail.value.trim());
+
+        status.textContent = 'Verificando e-mail...';
+        status.className = 'aviso-app informacao';
+
+        try {
+            const resposta = await fetch('../php/verificar_email.php', {
+                method: 'POST',
+                body: dados,
+                headers: { 'Accept': 'application/json' }
+            });
+
+            if (!resposta.ok) {
+                throw new Error('Falha ao verificar o e-mail');
+            }
+
+            const resultado = await resposta.json();
+            if (requisicao !== requisicaoEmail) {
+                return false;
+            }
+
+            status.textContent = resultado.mensagem;
+            status.className = resultado.disponivel
+                ? 'aviso-app sucesso'
+                : 'aviso-app erro';
+
+            return resultado.disponivel;
+        } catch (erro) {
+            if (requisicao === requisicaoEmail) {
+                status.textContent = 'Não foi possível verificar o e-mail. Tente novamente.';
+                status.className = 'aviso-app erro';
+            }
+
+            return false;
+        }
+    }
 
     inputEmail.addEventListener('input', function() {
         const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,6 +72,20 @@
             inputEmail.setCustomValidity('Por favor, introduza um formato de e-mail válido.');
         } else {
             inputEmail.setCustomValidity('');
+        }
+
+        const status = document.getElementById('email-status');
+        const requisicao = ++requisicaoEmail;
+        clearTimeout(timerEmail);
+        status.textContent = '';
+        status.className = '';
+
+        if (inputEmail.checkValidity()) {
+            timerEmail = setTimeout(function() {
+                if (requisicao === requisicaoEmail) {
+                    verificarEmail();
+                }
+            }, 500);
         }
     });
 
@@ -78,45 +135,20 @@
             }
         }
 
-        
-        const status = document.getElementById('email-status');
-        const dados = new FormData();
-        dados.append('email', inputEmail.value.trim());
-        
-        status.textContent = 'Verificando e-mail...';
-        status.className = 'aviso-app informacao';
+        if (!tudoCerto) {
+            return;
+        }
 
-        try {
-            const resposta = await fetch('../php/verificar_email.php', {
-            method: 'POST',
-            body: dados,
-            headers: { 'Accept': 'application/json' }
-        });
-        
-        if (!resposta.ok) {
-            throw new Error('Falha ao verificar o e-mail');
-        }
-        
-        const resultado = await resposta.json();
-        status.textContent = resultado.mensagem;
-        status.className = resultado.disponivel ? 'aviso-app sucesso' : 'aviso-app erro';
-        
-        if (!resultado.disponivel) {
+        clearTimeout(timerEmail);
+        if (!(await verificarEmail())) {
             return;
         }
-        } catch (erro) {
-            status.textContent = 'Não foi possível verificar o e-mail. Tente novamente.';
-            status.className = 'aviso-app erro';
-            return;
-        }
-        
-        if (tudoCerto) {
-            document.getElementById('passo1').style.display = 'none';
-            document.getElementById('passo2').style.display = 'block';
-            document.getElementById('barra-progresso').style.width = '100%';
-            document.querySelector('#passo2 h1').focus();
-        }
-}
+
+        document.getElementById('passo1').style.display = 'none';
+        document.getElementById('passo2').style.display = 'block';
+        document.getElementById('barra-progresso').style.width = '100%';
+        document.querySelector('#passo2 h1').focus();
+    }
 
 
     function voltarPasso() {
