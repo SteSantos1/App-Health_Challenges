@@ -16,6 +16,12 @@
         <h2>Health Challenges</h2>
     </header>
     <main>
+        <?php if (($_GET['erro'] ?? '') === 'email-em-uso'): ?>
+            <p class="aviso-app erro" role="alert">Este e-mail já está em uso.</p>
+        <?php elseif (($_GET['erro'] ?? '') === 'erro-2'): ?>
+            <p class="aviso-app erro" role="alert">Error message 2.</p>
+        <?php endif; ?>
+
         <form action="../php/registro.php" method="post">
 
             <div class="fundo-barra" aria-hidden="true">
@@ -38,6 +44,7 @@
                     <label for="email">E-mail</label>
                     <br>
                     <input type="email" name="email" id="email" autocomplete="email" required>
+                    <p id="email-status" role="status" aria-live="polite"></p>
                 </div>
                 <div>
                     <label for="password">Senha</label>

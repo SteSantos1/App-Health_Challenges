@@ -193,6 +193,38 @@ input:focus {
     line-height: 1.4;
 }
 
+.aviso-app {
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    margin-bottom: 20px;
+}
+
+.aviso-app.erro {
+    background-color: #FFE2E2;
+    color: #C10007;
+}
+
+.aviso-app.sucesso {
+    background-color: #ECFDF5;
+    color: var(--cor-alerta-texto);
+}
+
+.aviso-app.informacao {
+    background-color: var(--cor-fundo);
+    color: var(--cor-alerta-texto);
+}
+
+.aviso-app:empty {
+    display: none;
+}
+
+#email-status {
+    margin: 8px 0 0;
+    font-size: 0.9rem;
+}
+
 /* Botões */
 button {
     width: 100%;
