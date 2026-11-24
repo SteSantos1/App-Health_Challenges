@@ -3,6 +3,7 @@ require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/desafios_diarios.php';
 require_once __DIR__ . '/../php/conquistas.php';
 require_once __DIR__ . '/../php/pontos.php';
+require_once __DIR__ . '/../php/tipos_atividade.php';
 
 $pagina_atual = 'inicio';
 $titulo_topo = 'Início';
@@ -51,10 +52,53 @@ if ($escolhido) {
 
 $pontos_mes = pontos_do_mes($pdo, $id_usuario);
 
+$stmt_total = $pdo->prepare(
+    'SELECT COALESCE(SUM(dd.pontos_recompensa), 0)
+     FROM registro_conclusao rc
+     INNER JOIN desafio_diario dd ON dd.id_desafio_diario = rc.id_desafio_diario
+     WHERE rc.id_usuario = :id_usuario AND rc.status_conclusao = 1'
+);
+$stmt_total->execute([':id_usuario' => $id_usuario]);
+$pontos_totais = (int) $stmt_total->fetchColumn();
+
+$stmt_posicao = $pdo->prepare(
+    'SELECT u.id_usuario, COALESCE(SUM(dd.pontos_recompensa), 0) AS pontos
+     FROM usuario u
+     LEFT JOIN registro_conclusao rc
+            ON rc.id_usuario = u.id_usuario
+           AND rc.status_conclusao = 1
+           AND rc.data_hora >= :inicio_mes
+           AND rc.data_hora < CURDATE()
+     LEFT JOIN desafio_diario dd ON dd.id_desafio_diario = rc.id_desafio_diario
+     GROUP BY u.id_usuario'
+);
+$stmt_posicao->execute([':inicio_mes' => date('Y-m-01')]);
+$pontos_ranking = array_column($stmt_posicao->fetchAll(PDO::FETCH_ASSOC), 'pontos', 'id_usuario');
+$meus_pontos_ranking = (int) ($pontos_ranking[$id_usuario] ?? 0);
+$posicao = null;
+if ($meus_pontos_ranking > 0) {
+    $posicao = 1 + count(array_filter($pontos_ranking, fn($p) => (int) $p > $meus_pontos_ranking));
+}
+
+$stmt_indice = $pdo->prepare(
+    'SELECT tipo_atividade, valor_atingido, unidade
+     FROM atividade
+     WHERE id_usuario = :id AND data_hora >= DATE_SUB(NOW(), INTERVAL 30 DAY)'
+);
+$stmt_indice->execute([':id' => $id_usuario]);
+$tipos_indice = tipos_atividade();
+$pontos_indice = 0;
+foreach ($stmt_indice->fetchAll(PDO::FETCH_ASSOC) as $ativ) {
+    $pontos_indice += (float) $ativ['valor_atingido']
+        * ($tipos_indice[$ativ['tipo_atividade']]['unidades'][$ativ['unidade']] ?? 0);
+}
+
 $resumo = [
-    'posicao' => 4,
-    'pontos_totais' => '8.5k',
-    'indice' => 78,
+    'posicao' => $posicao !== null ? $posicao . 'º' : '-',
+    'pontos_totais' => $pontos_totais >= 1000
+        ? rtrim(rtrim(number_format($pontos_totais / 1000, 1, '.', ''), '0'), '.') . 'k'
+        : (string) $pontos_totais,
+    'indice' => (int) min(100, round($pontos_indice)),
 ];
 
 ?>
@@ -513,7 +557,7 @@ $resumo = [
                 <div class="grade-3 numeros">
                     <div class="cartao-app numero-cartao">
                         <span class="emoji" aria-hidden="true">🏆</span>
-                        <strong><?= $resumo['posicao'] ?>º</strong>
+                        <strong><?= $resumo['posicao'] ?></strong>
                         <small>No ranking</small>
                     </div>
                     <div class="cartao-app numero-cartao">
