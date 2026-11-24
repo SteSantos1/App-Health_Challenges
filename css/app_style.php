@@ -182,7 +182,7 @@ h1, h2, h3 {
     flex-shrink: 0;
 }
 
-/* ---------- Menu lateral ---------- */
+/* Menu lateral */
 .lateral {
     grid-row: 1 / span 2;
     position: sticky;
@@ -310,7 +310,7 @@ h1, h2, h3 {
     padding-top: 24px;
 }
 
-/* ---------- Barra do topo ---------- */
+/* Barra do topo */
 .topo-app {
     grid-column: 2;
     position: sticky;
@@ -344,7 +344,7 @@ h1, h2, h3 {
     white-space: nowrap;
 }
 
-/* ---------- Conteúdo ---------- */
+/* Conteúdo */
 .topo-app,
 .conteudo {
     min-width: 0;
@@ -391,7 +391,7 @@ h1, h2, h3 {
     flex-wrap: wrap;
 }
 
-/* ---------- Componentes ---------- */
+/* Componentes */
 .cartao-app {
     background-color: var(--branco);
     border: 1px solid var(--borda);
@@ -653,7 +653,7 @@ html[data-daltonismo="ativo"] .barra > span {
     border-top: 1px solid var(--borda);
 }
 
-/* ---------- Janela (formulários) ---------- */
+/* Janela (formulários) */
 dialog.janela {
     margin: auto;
     border: none;
@@ -731,7 +731,7 @@ dialog.janela::backdrop {
     gap: 12px;
 }
 
-/* ---------- Celular e telas pequenas ---------- */
+/* Celular e telas pequenas */
 @media (max-width: 1100px) {
     .grade-2 {
         grid-template-columns: 1fr;

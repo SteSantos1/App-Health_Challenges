@@ -349,6 +349,35 @@ input:focus {
     color: var(--branco);
 }
 
+.campo-codigo {
+    text-align: center;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: 0.4em;
+}
+
+.form-reenvio {
+    margin-top: 14px;
+}
+
+.btn-reenvio {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    background-color: var(--branco);
+    color: var(--verde);
+    font-family: var(--fonte);
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.btn-reenvio:disabled {
+    color: var(--texto-suave);
+    cursor: not-allowed;
+}
+
 .escondido {
     display: none;
 }

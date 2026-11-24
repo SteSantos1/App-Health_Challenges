@@ -1,3 +1,27 @@
+<?php
+require_once __DIR__ . '/../php/env.php';
+
+$antigo = $_SESSION['cadastro_form'] ?? [];
+unset($_SESSION['cadastro_form']);
+
+$mensagens_erro = [
+    'nome' => ['Informe seu nome completo.', 1],
+    'email-invalido' => ['Informe um e-mail válido.', 1],
+    'email-em-uso' => ['Este e-mail já está em uso.', 1],
+    'senhas' => ['As senhas não coincidem.', 1],
+    'data' => ['Informe uma data de nascimento válida.', 2],
+    'altura' => ['Altura inválida. Informe um valor entre 0,5 e 2,5 metros.', 2],
+    'peso' => ['Peso inválido. Informe um valor entre 20 e 400 kg.', 2],
+    'falha' => ['Não foi possível concluir o cadastro. Tente novamente.', 1],
+];
+
+$erro_cadastro = $mensagens_erro[$_GET['erro'] ?? ''] ?? null;
+
+function valor_antigo(array $antigo, string $campo): string
+{
+    return htmlspecialchars($antigo[$campo] ?? '', ENT_QUOTES);
+}
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -23,10 +47,8 @@
             <span>Daltonismo</span>
         </button>
 
-        <?php if (($_GET['erro'] ?? '') === 'email-em-uso'): ?>
-            <p class="aviso-app erro" role="alert">Este e-mail já está em uso.</p>
-        <?php elseif (($_GET['erro'] ?? '') === 'erro-2'): ?>
-            <p class="aviso-app erro" role="alert">Error message 2.</p>
+        <?php if ($erro_cadastro): ?>
+            <p class="aviso-app erro" role="alert"><?= htmlspecialchars($erro_cadastro[0]) ?></p>
         <?php endif; ?>
 
         <form action="../php/registro.php" method="post">
@@ -44,13 +66,13 @@
                 <div>
                     <label for="name">Nome Completo</label>
                     <br>
-                    <input type="text" name="name" id="name" autocomplete="name" required>
+                    <input type="text" name="name" id="name" autocomplete="name" value="<?= valor_antigo($antigo, 'name') ?>" required>
                 </div>
 
                 <div>
                     <label for="email">E-mail</label>
                     <br>
-                    <input type="email" name="email" id="email" autocomplete="email" required>
+                    <input type="email" name="email" id="email" autocomplete="email" value="<?= valor_antigo($antigo, 'email') ?>" required>
                     <p id="email-status" role="status" aria-live="polite"></p>
                 </div>
                 <div>
@@ -74,19 +96,19 @@
                 <div>
                     <label for="date-birth">Data de nascimento</label>
                     <br>
-                    <input type="date" name="date-birth" id="date-birth" autocomplete="bday" required>
+                    <input type="date" name="date-birth" id="date-birth" autocomplete="bday" value="<?= valor_antigo($antigo, 'date-birth') ?>" required>
                 </div>
                 <div class="grupo-fisico">
                     <div class="campo-metade">
                         <label for="height">Altura (m)</label>
                         <br>
-                        <input type="text" name="height" id="height" placeholder="1.75" required>
+                        <input type="text" name="height" id="height" placeholder="1.75" value="<?= valor_antigo($antigo, 'height') ?>" required>
                     </div>
 
                     <div class="campo-metade">
                         <label for="weight">Peso (kg)</label>
                         <br>
-                        <input type="text" name="weight" id="weight" placeholder="70" required>
+                        <input type="text" name="weight" id="weight" placeholder="70" value="<?= valor_antigo($antigo, 'weight') ?>" required>
                     </div>
                 </div>
 
@@ -104,5 +126,12 @@
         </form>
     </main>
     <?php include __DIR__ . '/../javascript/cadastro_script.php'; ?>
+    <?php if ($erro_cadastro && $erro_cadastro[1] === 2): ?>
+        <script>
+            document.getElementById('passo1').style.display = 'none';
+            document.getElementById('passo2').style.display = 'block';
+            document.getElementById('barra-progresso').style.width = '100%';
+        </script>
+    <?php endif; ?>
 </body>
 </html>

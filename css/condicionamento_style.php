@@ -93,7 +93,8 @@
 
         .contagem {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px 8px;
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid var(--borda);
@@ -112,6 +113,7 @@
 
         .contagem small {
             color: var(--texto-suave);
+            overflow-wrap: anywhere;
         }
 
         .selo-variacao {
@@ -217,6 +219,10 @@
         }
 
         @media (max-width: 600px) {
+            .contagem {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
             .medidas {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;

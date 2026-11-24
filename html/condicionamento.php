@@ -75,7 +75,7 @@
                         <div>
                             <span aria-hidden="true"><?= $emojis[$tipo] ?></span>
                             <strong><?= $quantidade ?></strong>
-                            <small><?= $tipo ?><?= $quantidade === 1 ? '' : 's' ?></small>
+                            <small><?= $quantidade === 1 ? $tipo : $tipos_atividade[$tipo]['plural'] ?></small>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -167,9 +167,9 @@
             <div>
                 <label for="tipo">Tipo</label>
                 <select id="tipo" name="tipo" required>
-                    <option value="Caminhada">Caminhada</option>
-                    <option value="Corrida">Corrida</option>
-                    <option value="Ciclismo">Ciclismo</option>
+                    <?php foreach ($tipos_atividade as $nome_tipo => $info_tipo): ?>
+                        <option value="<?= htmlspecialchars($nome_tipo) ?>" data-unidades="<?= implode(',', array_keys($info_tipo['unidades'])) ?>"><?= htmlspecialchars($nome_tipo) ?></option>
+                    <?php endforeach; ?>
                 </select>
             </div>
             <div class="form-linha">
@@ -216,6 +216,27 @@
             </button>
         </form>
     </dialog>
+
+    <script>
+        const seletorTipo = document.getElementById('tipo');
+        const seletorUnidade = document.getElementById('unidade');
+
+        function ajustarUnidades() {
+            const permitidas = seletorTipo.selectedOptions[0].dataset.unidades.split(',');
+
+            Array.from(seletorUnidade.options).forEach(function (opcao) {
+                opcao.disabled = !permitidas.includes(opcao.value);
+                opcao.hidden = opcao.disabled;
+            });
+
+            if (!permitidas.includes(seletorUnidade.value)) {
+                seletorUnidade.value = permitidas[0];
+            }
+        }
+
+        seletorTipo.addEventListener('change', ajustarUnidades);
+        ajustarUnidades();
+    </script>
 </body>
 
 </html>

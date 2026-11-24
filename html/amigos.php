@@ -144,6 +144,12 @@ $solicitacoes_recebidas = $stmt_pendentes->fetchAll(PDO::FETCH_ASSOC);
             margin: 0;
         }
 
+        .usuario-resultado button:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
         .conteudo > .aviso-app {
             margin-top: 16px;
         }
@@ -250,32 +256,35 @@ $solicitacoes_recebidas = $stmt_pendentes->fetchAll(PDO::FETCH_ASSOC);
                 name="nome_user"
                 id="nome_user"
                 value="<?= htmlspecialchars($termo, ENT_QUOTES, 'UTF-8') ?>"
+                autocomplete="off"
                 required
             >
             <button type="submit">Buscar</button>
         </form>
 
-        <?php if ($buscou && $termo === ''): ?>
-            <p>Digite um nome para pesquisar.</p>
-        <?php elseif ($buscou && empty($usuarios)): ?>
-            <p>Nenhum usuário encontrado.</p>
-        <?php endif; ?>
+        <div id="resultados-busca">
+            <?php if ($buscou && $termo === ''): ?>
+                <p role="status">Digite um nome para pesquisar.</p>
+            <?php elseif ($buscou && empty($usuarios)): ?>
+                <p role="status">Nenhum usuário encontrado.</p>
+            <?php endif; ?>
 
-        <?php foreach ($usuarios as $usuario): ?>
-            <article class="cartao-app usuario-resultado">
-                <p><?= htmlspecialchars($usuario['nome'], ENT_QUOTES, 'UTF-8') ?></p>
+            <?php foreach ($usuarios as $usuario): ?>
+                <article class="cartao-app usuario-resultado">
+                    <p><?= htmlspecialchars($usuario['nome'], ENT_QUOTES, 'UTF-8') ?></p>
 
-                <form action="../php/enviar_solicitacao.php" method="post" data-form-solicitacao>
-                    <input
-                        type="hidden"
-                        name="id_destinatario"
-                        value="<?= (int) $usuario['id_usuario'] ?>"
-                    >
-                    <button type="submit" class="btn btn-primario">Enviar solicitação</button>
-                </form>
-                <p role="status" aria-live="polite" data-status-solicitacao></p>
-            </article>
-        <?php endforeach; ?>
+                    <form action="../php/enviar_solicitacao.php" method="post" data-form-solicitacao>
+                        <input
+                            type="hidden"
+                            name="id_destinatario"
+                            value="<?= (int) $usuario['id_usuario'] ?>"
+                        >
+                        <button type="submit" class="btn btn-primario">Enviar solicitação</button>
+                    </form>
+                    <p role="status" aria-live="polite" data-status-solicitacao></p>
+                </article>
+            <?php endforeach; ?>
+        </div>
 
         <section class="cartao-app lista-amigos" aria-label="Meus amigos">
             <h3>Meus amigos (<?= count($amigos) ?>)</h3>
@@ -327,37 +336,141 @@ $solicitacoes_recebidas = $stmt_pendentes->fetchAll(PDO::FETCH_ASSOC);
     </main>
 
     <script>
-        document.querySelectorAll('[data-form-solicitacao]').forEach(function (formulario) {
-            formulario.addEventListener('submit', async function (evento) {
-                evento.preventDefault();
+        const formBusca = document.getElementById('form-busca');
+        const campoBusca = document.getElementById('nome_user');
+        const resultados = document.getElementById('resultados-busca');
+        const rotulosRelacao = {
+            amigo: 'Já são amigos',
+            pendente: 'Solicitação pendente',
+            outra: 'Solicitação existente'
+        };
+        let timerBusca;
+        let requisicaoBusca = 0;
 
-                const botao = formulario.querySelector('button[type="submit"]');
-                const status = formulario.parentElement.querySelector('[data-status-solicitacao]');
+        function montarResultado(usuario) {
+            const artigo = document.createElement('article');
+            artigo.className = 'cartao-app usuario-resultado';
+
+            const nome = document.createElement('p');
+            nome.textContent = usuario.nome;
+
+            const formulario = document.createElement('form');
+            formulario.action = '../php/enviar_solicitacao.php';
+            formulario.method = 'post';
+            formulario.setAttribute('data-form-solicitacao', '');
+
+            const campoId = document.createElement('input');
+            campoId.type = 'hidden';
+            campoId.name = 'id_destinatario';
+            campoId.value = usuario.id_usuario;
+
+            const botao = document.createElement('button');
+            botao.type = 'submit';
+            botao.className = 'btn btn-primario';
+            if (usuario.relacao) {
                 botao.disabled = true;
-                status.textContent = 'Enviando solicitação...';
+                botao.textContent = rotulosRelacao[usuario.relacao];
+            } else {
+                botao.textContent = 'Enviar solicitação';
+            }
 
-                try {
-                    const resposta = await fetch(formulario.action, {
-                        method: 'POST',
-                        body: new FormData(formulario),
-                        headers: { 'Accept': 'application/json' }
-                    });
-                    const resultado = await resposta.json();
+            formulario.append(campoId, botao);
 
-                    status.textContent = resultado.mensagem;
-                    status.className = resultado.sucesso ? 'aviso-app sucesso' : 'aviso-app erro';
+            const status = document.createElement('p');
+            status.setAttribute('role', 'status');
+            status.setAttribute('aria-live', 'polite');
+            status.setAttribute('data-status-solicitacao', '');
 
-                    if (resultado.sucesso) {
-                        botao.textContent = 'Solicitação enviada';
-                    } else {
-                        botao.disabled = false;
-                    }
-                } catch (erro) {
-                    status.textContent = 'Não foi possível enviar a solicitação. Tente novamente.';
-                    status.className = 'aviso-app erro';
+            artigo.append(nome, formulario, status);
+            return artigo;
+        }
+
+        function mostrarMensagemBusca(texto) {
+            const mensagem = document.createElement('p');
+            mensagem.setAttribute('role', 'status');
+            mensagem.textContent = texto;
+            resultados.replaceChildren(mensagem);
+        }
+
+        async function buscarUsuarios() {
+            const termo = campoBusca.value.trim();
+            const requisicao = ++requisicaoBusca;
+
+            if (termo === '') {
+                resultados.replaceChildren();
+                return;
+            }
+
+            try {
+                const resposta = await fetch('../php/buscar_usuarios.php?termo=' + encodeURIComponent(termo), {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!resposta.ok) {
+                    throw new Error('Falha na busca');
+                }
+
+                const dados = await resposta.json();
+                if (requisicao !== requisicaoBusca) {
+                    return;
+                }
+
+                if (dados.usuarios.length === 0) {
+                    mostrarMensagemBusca('Nenhum usuário encontrado.');
+                } else {
+                    resultados.replaceChildren(...dados.usuarios.map(montarResultado));
+                }
+            } catch (erro) {
+                if (requisicao === requisicaoBusca) {
+                    mostrarMensagemBusca('Não foi possível buscar agora. Tente novamente.');
+                }
+            }
+        }
+
+        campoBusca.addEventListener('input', function () {
+            clearTimeout(timerBusca);
+            timerBusca = setTimeout(buscarUsuarios, 300);
+        });
+
+        formBusca.addEventListener('submit', function (evento) {
+            evento.preventDefault();
+            clearTimeout(timerBusca);
+            buscarUsuarios();
+        });
+
+        resultados.addEventListener('submit', async function (evento) {
+            const formulario = evento.target.closest('[data-form-solicitacao]');
+            if (!formulario) {
+                return;
+            }
+            evento.preventDefault();
+
+            const botao = formulario.querySelector('button[type="submit"]');
+            const status = formulario.parentElement.querySelector('[data-status-solicitacao]');
+            botao.disabled = true;
+            status.textContent = 'Enviando solicitação...';
+
+            try {
+                const resposta = await fetch(formulario.action, {
+                    method: 'POST',
+                    body: new FormData(formulario),
+                    headers: { 'Accept': 'application/json' }
+                });
+                const resultado = await resposta.json();
+
+                status.textContent = resultado.mensagem;
+                status.className = resultado.sucesso ? 'aviso-app sucesso' : 'aviso-app erro';
+
+                if (resultado.sucesso) {
+                    botao.textContent = 'Solicitação enviada';
+                } else {
                     botao.disabled = false;
                 }
-            });
+            } catch (erro) {
+                status.textContent = 'Não foi possível enviar a solicitação. Tente novamente.';
+                status.className = 'aviso-app erro';
+                botao.disabled = false;
+            }
         });
     </script>
 </body>

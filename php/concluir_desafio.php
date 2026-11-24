@@ -2,6 +2,29 @@
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/verifica_sessao.php';
 require_once __DIR__ . '/conquistas.php';
+require_once __DIR__ . '/pontos.php';
+
+$resposta_json = strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false;
+
+function responder_conclusao($resposta_json, $sucesso, $mensagem, $codigo, $extra = [], $status_http = 200)
+{
+    if ($resposta_json) {
+        http_response_code($status_http);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['sucesso' => $sucesso, 'mensagem' => $mensagem] + $extra, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $destinos = [
+        'quantidade'  => '?erro=quantidade',
+        'sem_desafio' => '?erro=sem_desafio',
+        'meta'        => '?erro=meta',
+        'ja'          => '?concluido=ja',
+        'concluido'   => '?concluido=1',
+    ];
+    header('Location: ../html/inicio.php' . ($destinos[$codigo] ?? ''));
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../html/inicio.php');
@@ -11,8 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $quantidade_feita = filter_input(INPUT_POST, 'quantidade_feita', FILTER_VALIDATE_INT);
 
 if ($quantidade_feita === false || $quantidade_feita === null || $quantidade_feita < 1) {
-    header('Location: ../html/inicio.php?erro=quantidade');
-    exit;
+    responder_conclusao($resposta_json, false, 'Informe uma quantidade válida.', 'quantidade', [], 400);
 }
 
 $stmt = $pdo->prepare(
@@ -29,13 +51,11 @@ $stmt->execute([':id_usuario' => $_SESSION['id_usuario']]);
 $desafio = $stmt->fetch();
 
 if (!$desafio) {
-    header('Location: ../html/inicio.php?erro=sem_desafio');
-    exit;
+    responder_conclusao($resposta_json, false, 'Escolha um desafio de hoje antes de concluir.', 'sem_desafio', [], 400);
 }
 
 if ($quantidade_feita < (int) $desafio['quantidade_exigida']) {
-    header('Location: ../html/inicio.php?erro=meta');
-    exit;
+    responder_conclusao($resposta_json, false, 'Você ainda não atingiu a meta do desafio.', 'meta', [], 400);
 }
 
 $stmt = $pdo->prepare(
@@ -53,8 +73,14 @@ $stmt->execute([
 ]);
 
 if ($stmt->fetch()) {
-    header('Location: ../html/inicio.php?concluido=ja');
-    exit;
+    responder_conclusao(
+        $resposta_json,
+        false,
+        'Este desafio já foi registrado como concluído.',
+        'ja',
+        ['concluido' => true],
+        409
+    );
 }
 
 $stmt = $pdo->prepare(
@@ -72,5 +98,22 @@ $stmt->execute([
 
 desbloquear_conquistas_por_pontuacao($pdo, (int) $_SESSION['id_usuario']);
 
-header('Location: ../html/inicio.php?concluido=1');
-exit;
+$conquistas = obter_conquistas_usuario($pdo, (int) $_SESSION['id_usuario']);
+$desbloqueadas = [];
+foreach ($conquistas as $conquista) {
+    if ($conquista['desbloqueada']) {
+        $desbloqueadas[] = $conquista['chave'];
+    }
+}
+
+responder_conclusao(
+    $resposta_json,
+    true,
+    'Desafio concluído! Você ganhou ' . (int) $desafio['pontos_recompensa'] . ' pontos.',
+    'concluido',
+    [
+        'pontos_ganhos' => (int) $desafio['pontos_recompensa'],
+        'pontos_mes' => pontos_do_mes($pdo, (int) $_SESSION['id_usuario']),
+        'conquistas' => $desbloqueadas,
+    ]
+);

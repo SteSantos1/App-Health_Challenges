@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/desafios_diarios.php';
 require_once __DIR__ . '/../php/conquistas.php';
+require_once __DIR__ . '/../php/pontos.php';
 
 $pagina_atual = 'inicio';
 $titulo_topo = 'Início';
@@ -14,14 +15,7 @@ desbloquear_conquistas_por_pontuacao($pdo, $id_usuario);
 $conquistas = obter_conquistas_usuario($pdo, $id_usuario);
 $total_conquistas_desbloqueadas = array_sum(array_column($conquistas, 'desbloqueada'));
 
-$hora = (int) date('G');
-if ($hora < 12) {
-    $saudacao = 'Bom dia';
-} elseif ($hora < 18) {
-    $saudacao = 'Boa tarde';
-} else {
-    $saudacao = 'Boa noite';
-}
+$saudacao = 'Olá';
 
 // Exemplo: virá das tabelas categoria_saude e desafio_diario (Sprints 2 e 3)
 $categorias = [
@@ -54,6 +48,8 @@ if ($escolhido) {
     ]);
     $desafio_concluido = (bool) $stmt_conclusao->fetch();
 }
+
+$pontos_mes = pontos_do_mes($pdo, $id_usuario);
 
 $resumo = [
     'posicao' => 4,
@@ -443,7 +439,7 @@ $resumo = [
             <div class="grupo-botoes">
                 <div class="pilula-info ambar">
                     <small>Pontos no mês</small>
-                    <strong><?= $pontos_mes ?></strong>
+                    <strong data-pontos-mes><?= $pontos_mes ?></strong>
                 </div>
             </div>
         </div>
@@ -457,6 +453,8 @@ $resumo = [
         <?php elseif (($_GET['erro'] ?? '') === 'meta'): ?>
             <p class="aviso-app erro" role="alert">Você ainda não atingiu a meta do desafio.</p>
         <?php endif; ?>
+
+        <p class="aviso-app" id="aviso-concluir" aria-live="polite" hidden></p>
 
         <section class="cartao-app com-padding" style="margin-bottom: 20px;" aria-labelledby="titulo-categorias">
             <h3 class="cartao-titulo" id="titulo-categorias"><span>Categorias de saúde</span></h3>
@@ -482,11 +480,11 @@ $resumo = [
                         <span><?= $escolhido['nivel'] ?></span>
                         <span class="etiqueta-pts">+<?= $escolhido['pontos'] ?> pts</span>
                     </div>
-                    <form action="../php/concluir_desafio.php" method="post" class="form-concluir">
+                    <form action="../php/concluir_desafio.php" method="post" class="form-concluir" data-form-concluir>
                         <label for="quantidade_feita">Quanto você atingiu?</label>
                         <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required>
                         <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
-                            <?= $desafio_concluido ? 'Desafio concluído' : 'Concluir desafio' ?> <span aria-hidden="true">✓</span>
+                            <span data-rotulo-concluir><?= $desafio_concluido ? 'Desafio concluído' : 'Concluir desafio' ?></span> <span aria-hidden="true">✓</span>
                         </button>
                     </form>
                 </section>
@@ -534,19 +532,19 @@ $resumo = [
                     <h3 class="cartao-titulo" id="titulo-conquistas">
                         <span>Conquistas</span>
                         <span class="conquista-contagem">
-                            <span aria-hidden="true"><?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas</span>
-                            <span class="so-leitor"><?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas</span>
+                            <span aria-hidden="true" data-contagem-visivel><?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas</span>
+                            <span class="so-leitor" data-contagem-leitor><?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas</span>
                         </span>
                     </h3>
                     <div class="conquistas-grade">
                         <?php foreach ($conquistas as $conquista): ?>
                             <?php $classe_status = $conquista['desbloqueada'] ? 'conquista-desbloqueada' : 'conquista-pendente'; ?>
-                            <div class="conquista-item <?= $classe_status ?>">
+                            <div class="conquista-item <?= $classe_status ?>" data-chave="<?= htmlspecialchars($conquista['chave'], ENT_QUOTES, 'UTF-8') ?>">
                                 <span class="emoji" aria-hidden="true"><?= $conquista['emoji'] ?></span>
                                 <div class="conquista-detalhes">
                                     <strong><?= htmlspecialchars($conquista['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
                                     <small><?= htmlspecialchars($conquista['criterio'], ENT_QUOTES, 'UTF-8') ?></small>
-                                    <span class="conquista-status">
+                                    <span class="conquista-status" data-status-conquista>
                                         <?= $conquista['desbloqueada'] ? 'Desbloqueada' : 'Pendente' ?>
                                     </span>
                                 </div>
@@ -557,6 +555,77 @@ $resumo = [
             </div>
         </div>
     </main>
+
+
+    <script>
+        const formConcluir = document.querySelector('[data-form-concluir]');
+        const avisoConcluir = document.getElementById('aviso-concluir');
+
+        function mostrarAvisoConcluir(mensagem, sucesso) {
+            avisoConcluir.textContent = mensagem;
+            avisoConcluir.className = 'aviso-app ' + (sucesso ? 'sucesso' : 'erro');
+            avisoConcluir.setAttribute('role', sucesso ? 'status' : 'alert');
+            avisoConcluir.hidden = false;
+        }
+
+        function marcarComoConcluido(botao) {
+            botao.disabled = true;
+            botao.querySelector('[data-rotulo-concluir]').textContent = 'Desafio concluído';
+        }
+
+        function atualizarConquistas(chaves) {
+            chaves.forEach(function (chave) {
+                const item = document.querySelector('[data-chave="' + chave + '"]');
+                if (item && item.classList.contains('conquista-pendente')) {
+                    item.classList.remove('conquista-pendente');
+                    item.classList.add('conquista-desbloqueada');
+                    item.querySelector('[data-status-conquista]').textContent = 'Desbloqueada';
+                }
+            });
+            const desbloqueadas = document.querySelectorAll('.conquista-desbloqueada').length;
+            const total = document.querySelectorAll('[data-chave]').length;
+            document.querySelector('[data-contagem-visivel]').textContent = desbloqueadas + '/' + total + ' desbloqueadas';
+            document.querySelector('[data-contagem-leitor]').textContent = desbloqueadas + ' de ' + total + ' conquistas desbloqueadas';
+        }
+
+        if (formConcluir) {
+            formConcluir.addEventListener('submit', async function (evento) {
+                evento.preventDefault();
+
+                const botao = formConcluir.querySelector('button[type="submit"]');
+                if (botao.disabled) {
+                    return;
+                }
+                botao.disabled = true;
+
+                try {
+                    const resposta = await fetch(formConcluir.action, {
+                        method: 'POST',
+                        body: new FormData(formConcluir),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const resultado = await resposta.json();
+
+                    mostrarAvisoConcluir(resultado.mensagem, resultado.sucesso);
+
+                    if (resultado.sucesso) {
+                        document.querySelectorAll('[data-pontos-mes]').forEach(function (campo) {
+                            campo.textContent = resultado.pontos_mes;
+                        });
+                        marcarComoConcluido(botao);
+                        atualizarConquistas(resultado.conquistas || []);
+                    } else if (resultado.concluido) {
+                        marcarComoConcluido(botao);
+                    } else {
+                        botao.disabled = false;
+                    }
+                } catch (erro) {
+                    mostrarAvisoConcluir('Não foi possível concluir o desafio. Tente novamente.', false);
+                    botao.disabled = false;
+                }
+            });
+        }
+    </script>
 
     <?php if (($_GET['concluido'] ?? '') === '1'): ?>
         <script>

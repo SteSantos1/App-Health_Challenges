@@ -2,6 +2,9 @@
 require_once __DIR__ . '/env.php';
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/verifica_sessao.php';
+require_once __DIR__ . '/tipos_atividade.php';
+
+$tipos_atividade = tipos_atividade();
 
 $id_usuario = $_SESSION['id_usuario'];
 
@@ -46,25 +49,17 @@ $atividades_recentes = $stmt_indice->fetchAll(PDO::FETCH_ASSOC);
 // criar funcao pra usar umas 6 vezes no codigo dps
 
 function calcular_indice($lista_atividades){
+    $tipos = tipos_atividade();
     $pontos = 0;
     foreach ($lista_atividades as $ativ) {
         $valor = (float) $ativ['valor_atingido'];
-        $tipo = $ativ['tipo_atividade'];
-        $unidade = $ativ['unidade'];
-
-        if ($tipo === 'Corrida'){
-            $pontos += ($unidade === 'km') ? ($valor * 10) : ($valor * 1);
-        } elseif ($tipo === 'Ciclismo'){
-            $pontos += ($unidade === 'km') ? ($valor * 4) : ($valor * 0.4);
-        } elseif ($tipo === 'Caminhada'){
-            $pontos += ($unidade === 'km') ? ($valor * 5) : ($valor * 0.5);
-        }
+        $pontos += $valor * ($tipos[$ativ['tipo_atividade']]['unidades'][$ativ['unidade']] ?? 0);
     }
     return min(100, round($pontos));
 }
 $indice_atual = calcular_indice($atividades_recentes);
 
-$emojis = ['Caminhada' => '🚶', 'Corrida' => '🏃', 'Ciclismo' => '🚴'];
+$emojis = array_map(fn($tipo) => $tipo['emoji'], $tipos_atividade);
 $meses_curtos = ['', 'jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 
 function calcular_imc($peso, $altura) {
@@ -93,7 +88,7 @@ $imc = calcular_imc($dados_fisicos['peso'], $dados_fisicos['altura']);
 $data_nasc = new DateTime($dados_fisicos['data_nascimento']);
 $idade = $data_nasc->diff(new DateTime())->y;
 
-$contagem = ['Caminhada' => 0, 'Corrida' => 0, 'Ciclismo' => 0];
+$contagem = array_fill_keys(array_keys($tipos_atividade), 0);
 foreach ($atividades as $atividade) {
     if (isset($contagem[$atividade['tipo']])) {
         $contagem[$atividade['tipo']]++;

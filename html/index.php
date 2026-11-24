@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../php/env.php';
+require_once __DIR__ . '/../php/email_codigo.php';
 
 if (isset($_SESSION['id_usuario'])) {
     header('Location: inicio.php');
@@ -29,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $sql = "SELECT id_usuario, nome, senha FROM usuario WHERE email = :email LIMIT 1";
+        $sql = "SELECT id_usuario, nome, senha, email_verificado FROM usuario WHERE email = :email LIMIT 1";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':email', $email_digitado);
         $stmt->execute();
@@ -37,9 +38,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($usuario && password_verify($senha_digitada, $usuario['senha'])) {
 
+            if ((int) $usuario['email_verificado'] === 0) {
+                $_SESSION['verificar_email_id'] = (int) $usuario['id_usuario'];
+
+                if (segundos_para_reenviar($pdo, (int) $usuario['id_usuario']) === 0) {
+                    enviar_novo_codigo($pdo, (int) $usuario['id_usuario'], $email_digitado, $usuario['nome']);
+                }
+
+                header('Location: confirmar_email.php?pendente=1');
+                exit;
+            }
+
             session_regenerate_id(true);
 
-           
             $_SESSION['id_usuario'] = $usuario['id_usuario'];
             $_SESSION['nome']       = $usuario['nome'];
 

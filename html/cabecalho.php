@@ -30,7 +30,7 @@ $abas = [
         <span class="avatar" aria-hidden="true"><?= htmlspecialchars(iniciais($nome_usuario)) ?></span>
         <div>
             <strong><?= htmlspecialchars($nome_usuario) ?></strong>
-            <span><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts</span>
+            <span><span aria-hidden="true">⭐</span> <span data-pontos-mes><?= $pontos_mes ?></span> pts</span>
         </div>
     </div>
 
@@ -59,7 +59,7 @@ $abas = [
             <?= icone('contraste', 18) ?>
             <span class="rotulo-daltonismo">Daltonismo</span>
         </button>
-        <span class="selo-pontos"><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts<span class="selo-extra"> este mês</span></span>
+        <span class="selo-pontos"><span aria-hidden="true">⭐</span> <span data-pontos-mes><?= $pontos_mes ?></span> pts<span class="selo-extra"> este mês</span></span>
         <a href="../php/logout.php" class="topo-sair" aria-label="Sair"><?= icone('sair', 20) ?></a>
     </div>
 </header>

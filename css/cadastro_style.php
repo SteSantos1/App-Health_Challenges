@@ -159,7 +159,7 @@ main {
     justify-content: center;
 }
 
-/* === Estilos Internos do Formulário === */
+/* Estilos internos do formulário */
 
 .fundo-barra {
     width: 100%;
