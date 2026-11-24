@@ -207,9 +207,9 @@ $resumo = [
             box-shadow: var(--sombra);
         }
 
-        .opcao.alimentacao { background-color: var(--cat-alimentacao-fundo); border-color: #DCFCE7; }
-        .opcao.fisico      { background-color: var(--cat-fisico-fundo);      border-color: #DBEAFE; }
-        .opcao.leitura     { background-color: var(--cat-leitura-fundo);     border-color: #EDE9FE; }
+        .opcao.alimentacao { background-color: var(--cat-alimentacao-fundo); border-color: var(--cat-alimentacao-borda); }
+        .opcao.fisico      { background-color: var(--cat-fisico-fundo);      border-color: var(--cat-fisico-borda); }
+        .opcao.leitura     { background-color: var(--cat-leitura-fundo);     border-color: var(--cat-leitura-borda); }
 
         .opcao .emoji {
             font-size: 1.8rem;
@@ -328,12 +328,13 @@ $resumo = [
         }
 
         .conquista-item.conquista-desbloqueada {
-            background-color: #ECFDF5;
-            border-color: #A7F3D0;
+            background-color: var(--verde-claro);
+            border-color: var(--verde-suave);
         }
 
         .conquista-item.conquista-pendente {
             background-color: #F8FAFC;
+            border-color: var(--borda);
             color: var(--texto-suave);
         }
 
@@ -372,8 +373,8 @@ $resumo = [
         }
 
         .conquista-desbloqueada .conquista-status {
-            background-color: #D1FAE5;
-            color: #047857;
+            background-color: var(--verde-suave);
+            color: var(--verde-escuro);
         }
 
         .conquista-pendente .conquista-status {

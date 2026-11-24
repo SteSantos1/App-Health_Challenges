@@ -35,8 +35,8 @@
                 <h3 class="cartao-titulo" id="titulo-indice"><span>Índice de Condicionamento</span></h3>
                 <div class="anel">
                     <svg width="190" height="190" viewBox="0 0 190 190" aria-hidden="true">
-                        <circle cx="95" cy="95" r="<?= $raio_anel ?>" fill="none" stroke="#EFF6FF" stroke-width="16" />
-                        <circle cx="95" cy="95" r="<?= $raio_anel ?>" fill="none" stroke="#2B7FFF" stroke-width="16"
+                        <circle cx="95" cy="95" r="<?= $raio_anel ?>" fill="none" style="stroke: var(--cor-anel-trilha)" stroke-width="16" />
+                        <circle cx="95" cy="95" r="<?= $raio_anel ?>" fill="none" style="stroke: var(--cor-anel)" stroke-width="16"
                                 stroke-linecap="round"
                                 stroke-dasharray="<?= round($preenchido, 1) ?> <?= round($circunferencia, 1) ?>" />
                     </svg>
@@ -91,14 +91,14 @@
                 <svg viewBox="0 0 <?= $largura ?> <?= $altura_grafico ?>" role="img" aria-label="Gráfico da evolução do índice de condicionamento">
                     <defs>
                         <linearGradient id="area-verde" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" stop-color="#00BC7D" stop-opacity="0.28" />
-                            <stop offset="100%" stop-color="#00BC7D" stop-opacity="0" />
+                            <stop offset="0%" style="stop-color: var(--cor-grafico)" stop-opacity="0.28" />
+                            <stop offset="100%" style="stop-color: var(--cor-grafico)" stop-opacity="0" />
                         </linearGradient>
                     </defs>
                     <polygon points="<?= $area ?>" fill="url(#area-verde)" />
-                    <polyline points="<?= $linha ?>" fill="none" stroke="#00BC7D" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
+                    <polyline points="<?= $linha ?>" fill="none" style="stroke: var(--cor-grafico)" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" />
                     <?php foreach ($pontos as $ponto): ?>
-                        <circle cx="<?= $ponto[0] ?>" cy="<?= $ponto[1] ?>" r="8" fill="#00BC7D" stroke="#FFFFFF" stroke-width="3" />
+                        <circle cx="<?= $ponto[0] ?>" cy="<?= $ponto[1] ?>" r="8" style="fill: var(--cor-grafico)" stroke="#FFFFFF" stroke-width="3" />
                     <?php endforeach; ?>
                 </svg>
                 <div class="grafico-legenda" style="grid-template-columns: repeat(<?= count($evolucao_indice) ?>, 1fr);">

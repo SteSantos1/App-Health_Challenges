@@ -3,8 +3,8 @@
 
 function buscar_ranking_diario(PDO $pdo, int $id_usuario_logado): array
 {
-    // Mesmas cores de avatar usadas em html/grupos.php
-    $cores_avatar = ['#00BC7D', '#2B7FFF', '#F6339A', '#FE9A00', '#8E51FF', '#00B8DB'];
+    // Paleta com alto contraste e segura para daltonismo (RNF07)
+    $cores_avatar = ['#005AB5', '#B84700', '#00684A', '#6A359C', '#9E1B5E', '#005F73'];
 
     // LEFT JOIN a partir de usuario: quem ainda não concluiu desafio hoje aparece com 0 (e não NULL).
     // Os pontos vêm de desafio_diario.pontos_recompensa, via registro_conclusao (RF13), só de hoje.
@@ -24,7 +24,7 @@ function buscar_ranking_diario(PDO $pdo, int $id_usuario_logado): array
         $ranking[] = [
             'nome'   => $linha['nome'],
             'pontos' => (int) $linha['pontos'],
-            'cor'    => $sou_eu ? '#FF2056' : $cores_avatar[$i % count($cores_avatar)],
+            'cor'    => $sou_eu ? '#B84700' : $cores_avatar[$i % count($cores_avatar)],
             'eu'     => $sou_eu,
         ];
     }

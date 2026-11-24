@@ -54,7 +54,7 @@ foreach ($linhas_mensal as $indice => $linha) {
     }
 }
 
-$cores = ['#F6339A', '#2B7FFF', '#00BC7D', '#FF2056', '#8E51FF', '#FE9A00', '#00B8DB'];
+$cores = ['#9E1B5E', '#005AB5', '#00684A', '#B84700', '#6A359C', '#005F73'];
 
 function montar_ranking($linhas, $id_usuario, $cores)
 {
@@ -76,11 +76,11 @@ function montar_ranking($linhas, $id_usuario, $cores)
 $rankings = [
     'mensal' => montar_ranking($linhas_mensal, $id_usuario, $cores),
     'diario' => [
-        ['nome' => 'Carlos Oliveira', 'pontos' => 150, 'cor' => '#2B7FFF'],
-        ['nome' => $_SESSION['nome'], 'pontos' => 100, 'cor' => '#FF2056', 'eu' => true],
-        ['nome' => 'Ana Rodrigues',   'pontos' => 100, 'cor' => '#FE9A00'],
-        ['nome' => 'Marina Santos',   'pontos' => 50,  'cor' => '#F6339A'],
-        ['nome' => 'Tiago Souza',     'pontos' => 50,  'cor' => '#00B8DB'],
+        ['nome' => 'Carlos Oliveira', 'pontos' => 150, 'cor' => '#005AB5'],
+        ['nome' => $_SESSION['nome'], 'pontos' => 100, 'cor' => '#B84700', 'eu' => true],
+        ['nome' => 'Ana Rodrigues',   'pontos' => 100, 'cor' => '#005F73'],
+        ['nome' => 'Marina Santos',   'pontos' => 50,  'cor' => '#9E1B5E'],
+        ['nome' => 'Tiago Souza',     'pontos' => 50,  'cor' => '#00684A'],
     ],
 ];
 

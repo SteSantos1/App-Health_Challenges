@@ -68,9 +68,12 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
             border-left: 5px solid var(--borda);
         }
 
-        .desafio.alimentacao { border-left-color: var(--verde); }
-        .desafio.fisico      { border-left-color: #2B7FFF; }
-        .desafio.leitura     { border-left-color: #A684FF; }
+        .desafio.alimentacao { border-left-color: var(--cat-alimentacao); }
+        .desafio.fisico      { border-left-color: var(--cat-fisico); }
+        .desafio.leitura     { border-left-color: var(--cat-leitura); }
+
+        html[data-daltonismo="ativo"] .desafio.fisico  { border-left-style: dashed; }
+        html[data-daltonismo="ativo"] .desafio.leitura { border-left-width: 7px; border-left-style: double; }
 
         .desafio.alimentacao .emoji-caixa { background-color: var(--cat-alimentacao-fundo); }
         .desafio.fisico .emoji-caixa      { background-color: var(--cat-fisico-fundo); }
