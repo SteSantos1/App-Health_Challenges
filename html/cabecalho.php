@@ -55,6 +55,10 @@ $abas = [
 <header class="topo-app">
     <p class="topo-titulo"><?= htmlspecialchars($titulo_topo) ?></p>
     <div class="topo-direita">
+        <button type="button" class="btn-daltonismo" data-alternar-daltonismo aria-pressed="false" aria-label="Modo de cores para daltonismo" title="Alternar contraste para daltonismo">
+            <?= icone('contraste', 18) ?>
+            <span class="rotulo-daltonismo">Daltonismo</span>
+        </button>
         <span class="selo-pontos"><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts<span class="selo-extra"> este mês</span></span>
         <a href="../php/logout.php" class="topo-sair" aria-label="Sair"><?= icone('sair', 20) ?></a>
     </div>

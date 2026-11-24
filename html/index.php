@@ -73,6 +73,12 @@ $saiu = isset($_GET['saiu']);
             </svg>
         </span>
         <span class="marca-nome">Health Challenges</span>
+        <button type="button" class="btn-daltonismo" data-alternar-daltonismo aria-pressed="false" aria-label="Modo de cores para daltonismo" title="Alternar contraste para daltonismo">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20Z" fill="currentColor"/>
+            </svg>
+            <span>Daltonismo</span>
+        </button>
     </header>
 
     <main class="cartao">

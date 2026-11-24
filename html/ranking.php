@@ -13,16 +13,16 @@ $primeiro_nome = explode(' ', trim($_SESSION['nome']))[0];
 // Exemplo (mensal): virá da tabela ranking_temporada (Sprint 4)
 $rankings = [
     'mensal' => [
-        ['nome' => 'Marina Santos',     'pontos' => 1890, 'cor' => '#F6339A'],
-        ['nome' => 'Carlos Oliveira',   'pontos' => 1650, 'cor' => '#2B7FFF'],
-        ['nome' => 'Julia Ferraz',      'pontos' => 1520, 'cor' => '#00BC7D'],
-        ['nome' => $_SESSION['nome'],   'pontos' => 1240, 'cor' => '#FF2056', 'eu' => true],
-        ['nome' => 'Pedro Alves',       'pontos' => 1180, 'cor' => '#8E51FF'],
-        ['nome' => 'Ana Rodrigues',     'pontos' => 1020, 'cor' => '#FE9A00'],
-        ['nome' => 'Lucas Ferreira',    'pontos' => 890,  'cor' => '#2B7FFF'],
-        ['nome' => 'Carla Mendes',      'pontos' => 780,  'cor' => '#00BC7D'],
-        ['nome' => 'Tiago Souza',       'pontos' => 650,  'cor' => '#00B8DB'],
-        ['nome' => 'Beatriz Lima',      'pontos' => 540,  'cor' => '#FF2056'],
+        ['nome' => 'Marina Santos',     'pontos' => 1890, 'cor' => '#9E1B5E'],
+        ['nome' => 'Carlos Oliveira',   'pontos' => 1650, 'cor' => '#005AB5'],
+        ['nome' => 'Julia Ferraz',      'pontos' => 1520, 'cor' => '#00684A'],
+        ['nome' => $_SESSION['nome'],   'pontos' => 1240, 'cor' => '#B84700', 'eu' => true],
+        ['nome' => 'Pedro Alves',       'pontos' => 1180, 'cor' => '#6A359C'],
+        ['nome' => 'Ana Rodrigues',     'pontos' => 1020, 'cor' => '#005F73'],
+        ['nome' => 'Lucas Ferreira',    'pontos' => 890,  'cor' => '#005AB5'],
+        ['nome' => 'Carla Mendes',      'pontos' => 780,  'cor' => '#00684A'],
+        ['nome' => 'Tiago Souza',       'pontos' => 650,  'cor' => '#005F73'],
+        ['nome' => 'Beatriz Lima',      'pontos' => 540,  'cor' => '#9E1B5E'],
     ],
     'diario' => buscar_ranking_diario($pdo, (int) $_SESSION['id_usuario']),
 ];
@@ -153,9 +153,9 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
             font-size: 2rem;
         }
 
-        .segundo .degrau  { height: 110px; background-color: #90A1B9; }
-        .primeiro .degrau { height: 150px; background-color: var(--ambar); }
-        .terceiro .degrau { height: 85px;  background-color: #D7955F; }
+        .segundo .degrau  { height: 110px; background-color: var(--podio-2); border: 2px solid var(--borda-forte); }
+        .primeiro .degrau { height: 150px; background-color: var(--podio-1); border: 2px solid var(--ambar-borda); }
+        .terceiro .degrau { height: 85px;  background-color: var(--podio-3); border: 2px solid var(--ambar-texto); }
 
         .coroa {
             display: block;
@@ -173,6 +173,7 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
 
         .linha-ranking.eu {
             background-color: var(--verde-claro);
+            border-left: 4px solid var(--verde-forte);
         }
 
         .linha-ranking .posicao {
@@ -189,7 +190,8 @@ $medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
         }
 
         .linha-ranking .barra > span {
-            background-color: #CAD5E2;
+            background-color: var(--barra-neutra);
+            background-image: none;
         }
 
         .linha-ranking.eu .barra > span {

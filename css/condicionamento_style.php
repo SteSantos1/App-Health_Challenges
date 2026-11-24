@@ -41,7 +41,7 @@
             font-family: var(--fonte-titulo);
             font-size: 3rem;
             line-height: 1;
-            color: #155DFC;
+            color: var(--cor-anel);
         }
 
         .anel-texto small {
@@ -50,7 +50,7 @@
         }
 
         .anel-texto span {
-            color: #155DFC;
+            color: var(--cor-anel);
             font-weight: 700;
             margin-top: 2px;
         }

@@ -19,6 +19,7 @@ function icone($nome, $tamanho = 20)
         'alvo'        => '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
         'fechar'      => '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
         'medalha'     => '<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>',
+        'contraste'   => '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 0 0 20Z" fill="currentColor"/>',
     ];
 
     $desenho = $desenhos[$nome] ?? '';
