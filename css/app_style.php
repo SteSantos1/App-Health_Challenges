@@ -1,47 +1,150 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+<script>
+(function () {
+    try {
+        if (localStorage.getItem('hc_daltonismo') === '1') {
+            document.documentElement.setAttribute('data-daltonismo', 'ativo');
+        }
+    } catch (e) {}
+
+    function sincronizarBotoesDaltonismo() {
+        var ativo = document.documentElement.getAttribute('data-daltonismo') === 'ativo';
+        document.querySelectorAll('[data-alternar-daltonismo]').forEach(function (botao) {
+            botao.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+            botao.classList.toggle('ativo', ativo);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        sincronizarBotoesDaltonismo();
+        document.querySelectorAll('[data-alternar-daltonismo]').forEach(function (botao) {
+            botao.addEventListener('click', function () {
+                var ativo = document.documentElement.getAttribute('data-daltonismo') === 'ativo';
+                if (ativo) {
+                    document.documentElement.removeAttribute('data-daltonismo');
+                } else {
+                    document.documentElement.setAttribute('data-daltonismo', 'ativo');
+                }
+                try {
+                    localStorage.setItem('hc_daltonismo', ativo ? '0' : '1');
+                } catch (e) {}
+                sincronizarBotoesDaltonismo();
+            });
+        });
+    });
+})();
+</script>
 
 <style>
 :root {
-    --verde: #00BC7D;
-    --verde-forte: #009966;
-    --verde-escuro: #007A55;
+    --verde: #007F58;
+    --verde-forte: #007A55;
+    --verde-escuro: #005F42;
     --verde-claro: #ECFDF5;
-    --verde-suave: #D0FAE5;
+    --verde-suave: #A7F3D0;
     --fundo: #F0FDF8;
     --branco: #FFFFFF;
     --texto: #0F172B;
-    --texto-suave: #62748E;
-    --texto-fraco: #90A1B9;
-    --borda: #E2E8F0;
+    --texto-suave: #475569;
+    --texto-fraco: #52637A;
+    --borda: #CBD5E1;
+    --borda-forte: #94A3B8;
     --cinza-claro: #F1F5F9;
 
     --ambar: #FFB900;
     --ambar-fundo: #FFFBEB;
-    --ambar-borda: #FEF3C6;
-    --ambar-texto: #BB4D00;
-    --laranja: #FF6900;
-    --vermelho: #E7000B;
+    --ambar-borda: #F59E0B;
+    --ambar-texto: #9A3B00;
+    --laranja: #C2410C;
+    --vermelho: #B91C1C;
 
     --cat-alimentacao-fundo: #F0FDF4;
-    --cat-alimentacao: #008236;
+    --cat-alimentacao: #006837;
+    --cat-alimentacao-borda: #86EFAC;
     --cat-fisico-fundo: #EFF6FF;
-    --cat-fisico: #155DFC;
+    --cat-fisico: #0B4FD6;
+    --cat-fisico-borda: #93C5FD;
     --cat-leitura-fundo: #F5F3FF;
-    --cat-leitura: #7F22FE;
+    --cat-leitura: #6515DD;
+    --cat-leitura-borda: #C4B5FD;
 
     --facil-fundo: #DCFCE7;
-    --facil: #008236;
+    --facil: #006837;
+    --facil-borda: #4ADE80;
     --medio-fundo: #FEF3C6;
-    --medio: #BB4D00;
+    --medio: #8F3A00;
+    --medio-borda: #FBBF24;
     --dificil-fundo: #FFE2E2;
-    --dificil: #C10007;
+    --dificil: #A80008;
+    --dificil-borda: #F87171;
+
+    --barra-trilha: #DCE5F0;
+    --barra-neutra: #52637A;
+    --cor-anel: #0B4FD6;
+    --cor-anel-trilha: #DBEAFE;
+    --cor-grafico: #007A55;
+    --podio-1: #FFB900;
+    --podio-2: #64748B;
+    --podio-3: #B45309;
 
     --sombra: 0 1px 3px rgba(15, 23, 43, 0.06), 0 6px 16px rgba(15, 23, 43, 0.04);
     --raio: 20px;
     --fonte: 'Nunito', Arial, Helvetica, sans-serif;
     --fonte-titulo: 'Outfit', 'Nunito', Arial, sans-serif;
+}
+
+/* RNF07 – Paleta segura e de alto contraste para daltonismo (Okabe-Ito) */
+html[data-daltonismo="ativo"] {
+    --verde: #005AB5;
+    --verde-forte: #004C99;
+    --verde-escuro: #003B75;
+    --verde-claro: #E6F0FA;
+    --verde-suave: #99C2EB;
+    --fundo: #F4F7FB;
+    --texto: #0B1324;
+    --texto-suave: #334155;
+    --texto-fraco: #475569;
+    --borda: #B8C4D4;
+    --borda-forte: #64748B;
+    --cinza-claro: #E8EEF5;
+
+    --ambar: #E69F00;
+    --ambar-fundo: #FFF5D6;
+    --ambar-borda: #C68400;
+    --ambar-texto: #734800;
+    --laranja: #B84700;
+    --vermelho: #A63200;
+
+    --cat-alimentacao-fundo: #E6F6FA;
+    --cat-alimentacao: #00586E;
+    --cat-alimentacao-borda: #007B99;
+    --cat-fisico-fundo: #E8F1FC;
+    --cat-fisico: #004488;
+    --cat-fisico-borda: #005AB5;
+    --cat-leitura-fundo: #FCEEF5;
+    --cat-leitura: #882255;
+    --cat-leitura-borda: #AA3377;
+
+    --facil-fundo: #E6F2FF;
+    --facil: #004C99;
+    --facil-borda: #005AB5;
+    --medio-fundo: #FFF4CC;
+    --medio: #734800;
+    --medio-borda: #B37400;
+    --dificil-fundo: #FFEBE0;
+    --dificil: #A63200;
+    --dificil-borda: #CC3D00;
+
+    --barra-trilha: #D5DFEC;
+    --barra-neutra: #475569;
+    --cor-anel: #005AB5;
+    --cor-anel-trilha: #D0E2F5;
+    --cor-grafico: #005AB5;
+    --podio-1: #E69F00;
+    --podio-2: #4A6FA5;
+    --podio-3: #B84700;
 }
 
 * {
@@ -365,18 +468,28 @@ h1, h2, h3 {
 .selo {
     display: inline-flex;
     align-items: center;
+    gap: 4px;
     padding: 3px 10px;
     border-radius: 999px;
+    background-color: var(--cinza-claro);
+    color: var(--texto-suave);
+    border: 1px solid var(--borda);
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
-.selo.facil   { background-color: var(--facil-fundo);   color: var(--facil); }
-.selo.medio   { background-color: var(--medio-fundo);   color: var(--medio); }
-.selo.dificil { background-color: var(--dificil-fundo); color: var(--dificil); }
-.selo.admin   { background-color: var(--cat-leitura-fundo); color: var(--cat-leitura); }
+.selo.facil   { background-color: var(--facil-fundo);   color: var(--facil);   border-color: var(--facil-borda); }
+.selo.medio   { background-color: var(--medio-fundo);   color: var(--medio);   border-color: var(--medio-borda); }
+.selo.dificil { background-color: var(--dificil-fundo); color: var(--dificil); border-color: var(--dificil-borda); }
+.selo.admin   { background-color: var(--cat-leitura-fundo); color: var(--cat-leitura); border-color: var(--cat-leitura-borda); }
+
+html[data-daltonismo="ativo"] .selo.facil::before   { content: '●'; font-size: 0.65rem; }
+html[data-daltonismo="ativo"] .selo.medio           { border-style: dashed; }
+html[data-daltonismo="ativo"] .selo.medio::before   { content: '▲'; font-size: 0.65rem; }
+html[data-daltonismo="ativo"] .selo.dificil         { border-width: 2px; }
+html[data-daltonismo="ativo"] .selo.dificil::before { content: '◆'; font-size: 0.65rem; }
 
 .pilula-info {
     display: flex;
@@ -404,7 +517,7 @@ h1, h2, h3 {
 
 .pilula-info.verde   { background-color: var(--verde-claro);      border-color: var(--verde-suave); }
 .pilula-info.verde strong { color: var(--verde-escuro); }
-.pilula-info.roxo    { background-color: var(--cat-leitura-fundo); border-color: #EDE9FE; }
+.pilula-info.roxo    { background-color: var(--cat-leitura-fundo); border-color: var(--cat-leitura-borda); }
 .pilula-info.roxo strong { color: var(--cat-leitura); }
 .pilula-info.ambar   { background-color: var(--ambar-fundo);       border-color: var(--ambar-borda); }
 .pilula-info.ambar strong { color: var(--ambar-texto); }
@@ -491,9 +604,10 @@ h1, h2, h3 {
 }
 
 .barra {
-    height: 8px;
+    height: 10px;
     border-radius: 999px;
-    background-color: var(--cinza-claro);
+    background-color: var(--barra-trilha);
+    border: 1px solid var(--borda);
     overflow: hidden;
 }
 
@@ -502,6 +616,16 @@ h1, h2, h3 {
     height: 100%;
     border-radius: 999px;
     background-color: var(--verde);
+}
+
+html[data-daltonismo="ativo"] .barra > span {
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.22) 0,
+        rgba(255, 255, 255, 0.22) 5px,
+        transparent 5px,
+        transparent 10px
+    );
 }
 
 .texto-suave {
@@ -681,8 +805,13 @@ dialog.janela::backdrop {
         font-size: 0.85rem;
     }
 
-    .selo-extra {
+    .selo-extra,
+    .rotulo-daltonismo {
         display: none;
+    }
+
+    .btn-daltonismo {
+        padding: 8px 10px;
     }
 
     .cabeca-pagina .grupo-botoes,
@@ -736,19 +865,60 @@ dialog.janela::backdrop {
     gap: 10px;
 }
 
+.btn-daltonismo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--borda);
+    background-color: var(--branco);
+    color: var(--texto);
+    font-size: 0.9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.btn-daltonismo:hover {
+    background-color: var(--cinza-claro);
+}
+
+.btn-daltonismo.ativo {
+    background-color: var(--verde-forte);
+    border-color: var(--verde-escuro);
+    color: var(--branco);
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--verde-escuro);
+    outline-offset: 2px;
+}
+
 .aviso-app {
     padding: 14px 18px;
     border-radius: 14px;
+    border: 1px solid transparent;
+    border-left-width: 5px;
     font-weight: 700;
     margin-bottom: 20px;
 }
 
 .aviso-app.sucesso {
     background-color: var(--verde-claro);
+    border-color: var(--verde-suave);
+    border-left-color: var(--verde-forte);
     color: var(--verde-escuro);
 }
 .aviso-app.erro {
     background-color: var(--dificil-fundo);
+    border-color: var(--dificil-borda);
+    border-left-color: var(--dificil);
     color: var(--dificil);
 }
 

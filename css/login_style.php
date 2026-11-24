@@ -1,24 +1,75 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+(function () {
+    try {
+        if (localStorage.getItem('hc_daltonismo') === '1') {
+            document.documentElement.setAttribute('data-daltonismo', 'ativo');
+        }
+    } catch (e) {}
+
+    function sincronizarBotoesDaltonismo() {
+        var ativo = document.documentElement.getAttribute('data-daltonismo') === 'ativo';
+        document.querySelectorAll('[data-alternar-daltonismo]').forEach(function (botao) {
+            botao.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+            botao.classList.toggle('ativo', ativo);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        sincronizarBotoesDaltonismo();
+        document.querySelectorAll('[data-alternar-daltonismo]').forEach(function (botao) {
+            botao.addEventListener('click', function () {
+                var ativo = document.documentElement.getAttribute('data-daltonismo') === 'ativo';
+                if (ativo) {
+                    document.documentElement.removeAttribute('data-daltonismo');
+                } else {
+                    document.documentElement.setAttribute('data-daltonismo', 'ativo');
+                }
+                try {
+                    localStorage.setItem('hc_daltonismo', ativo ? '0' : '1');
+                } catch (e) {}
+                sincronizarBotoesDaltonismo();
+            });
+        });
+    });
+})();
+</script>
 
 <style>
 
 :root {
     --bege: #F0FDF8;
-    --verde: #009966;
-    --verde-escuro: #007A55;
-    --verde-claro: #00BC7D;
+    --verde: #007A55;
+    --verde-escuro: #005F42;
+    --verde-claro: #007F58;
     --folha: rgba(255, 255, 255, 0.14);
     --marrom: #0F172B;
     --texto: #0F172B;
-    --texto-suave: #62748E;
-    --borda: #E2E8F0;
+    --texto-suave: #475569;
+    --borda: #CBD5E1;
     --branco: #FFFFFF;
-    --erro-fundo: #FDECEC;
-    --erro-texto: #B42318;
+    --erro-fundo: #FFE2E2;
+    --erro-borda: #F87171;
+    --erro-texto: #A80008;
     --sucesso-fundo: #ECFDF5;
+    --sucesso-borda: #6EE7B7;
     --fonte: 'Nunito', Arial, Helvetica, sans-serif;
+}
+
+html[data-daltonismo="ativo"] {
+    --bege: #F4F7FB;
+    --verde: #004C99;
+    --verde-escuro: #003B75;
+    --verde-claro: #005AB5;
+    --texto-suave: #334155;
+    --borda: #B8C4D4;
+    --erro-fundo: #FFEBE0;
+    --erro-borda: #CC3D00;
+    --erro-texto: #A63200;
+    --sucesso-fundo: #E6F2FF;
+    --sucesso-borda: #005AB5;
 }
 
 * {
@@ -181,7 +232,7 @@ input {
 }
 
 input::placeholder {
-    color: #90A1B9;
+    color: var(--texto-suave);
     font-weight: 600;
 }
 
@@ -252,12 +303,16 @@ input:focus {
 .aviso {
     padding: 12px 16px;
     border-radius: 12px;
-    font-weight: 600;
+    border: 1px solid transparent;
+    border-left-width: 5px;
+    font-weight: 700;
     margin-bottom: 20px;
 }
 
 .aviso-erro {
     background-color: var(--erro-fundo);
+    border-color: var(--erro-borda);
+    border-left-color: var(--erro-texto);
     color: var(--erro-texto);
 }
 
@@ -267,7 +322,31 @@ input:focus {
 
 .aviso-sucesso {
     background-color: var(--sucesso-fundo);
-    color: var(--verde);
+    border-color: var(--sucesso-borda);
+    border-left-color: var(--verde);
+    color: var(--verde-escuro);
+}
+
+.btn-daltonismo {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--borda);
+    background-color: var(--branco);
+    color: var(--texto);
+    font-family: var(--fonte);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-daltonismo.ativo {
+    background-color: var(--verde);
+    border-color: var(--verde-escuro);
+    color: var(--branco);
 }
 
 .escondido {

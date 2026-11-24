@@ -1,16 +1,71 @@
+<script>
+(function () {
+    try {
+        if (localStorage.getItem('hc_daltonismo') === '1') {
+            document.documentElement.setAttribute('data-daltonismo', 'ativo');
+        }
+    } catch (e) {}
+
+    function sincronizarBotoesDaltonismo() {
+        var ativo = document.documentElement.getAttribute('data-daltonismo') === 'ativo';
+        document.querySelectorAll('[data-alternar-daltonismo]').forEach(function (botao) {
+            botao.setAttribute('aria-pressed', ativo ? 'true' : 'false');
+            botao.classList.toggle('ativo', ativo);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        sincronizarBotoesDaltonismo();
+        document.querySelectorAll('[data-alternar-daltonismo]').forEach(function (botao) {
+            botao.addEventListener('click', function () {
+                var ativo = document.documentElement.getAttribute('data-daltonismo') === 'ativo';
+                if (ativo) {
+                    document.documentElement.removeAttribute('data-daltonismo');
+                } else {
+                    document.documentElement.setAttribute('data-daltonismo', 'ativo');
+                }
+                try {
+                    localStorage.setItem('hc_daltonismo', ativo ? '0' : '1');
+                } catch (e) {}
+                sincronizarBotoesDaltonismo();
+            });
+        });
+    });
+})();
+</script>
 <style>
 :root {
     --cor-fundo: #F0FDF8; 
-    --cor-fundo-ilustracao: #00BC7D; 
+    --cor-fundo-ilustracao: #007F58; 
     --cor-texto-principal: #0F172B; 
-    --cor-texto-secundario: #62748E;
-    --cor-primaria: #009966; 
-    --cor-borda: #E2E8F0;
+    --cor-texto-secundario: #475569;
+    --cor-primaria: #007A55; 
+    --cor-primaria-hover: #005F42;
+    --cor-borda: #CBD5E1;
     --cor-fundo-input: #ffffff;
     --cor-alerta-fundo: #ECFDF5;
-    --cor-alerta-texto: #007A55;
+    --cor-alerta-borda: #6EE7B7;
+    --cor-alerta-texto: #005F42;
+    --cor-erro-fundo: #FFE2E2;
+    --cor-erro-borda: #F87171;
+    --cor-erro-texto: #A80008;
     --cor-botao-voltar: #F1F5F9;
     --fonte-padrao: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+html[data-daltonismo="ativo"] {
+    --cor-fundo: #F4F7FB;
+    --cor-fundo-ilustracao: #005AB5;
+    --cor-texto-secundario: #334155;
+    --cor-primaria: #004C99;
+    --cor-primaria-hover: #003B75;
+    --cor-borda: #B8C4D4;
+    --cor-alerta-fundo: #E6F2FF;
+    --cor-alerta-borda: #005AB5;
+    --cor-alerta-texto: #003B75;
+    --cor-erro-fundo: #FFEBE0;
+    --cor-erro-borda: #CC3D00;
+    --cor-erro-texto: #A63200;
 }
 
 * {
@@ -196,23 +251,31 @@ input:focus {
 .aviso-app {
     padding: 14px 18px;
     border-radius: 14px;
+    border: 1px solid transparent;
+    border-left-width: 5px;
     font-weight: 700;
     line-height: 1.4;
     margin-bottom: 20px;
 }
 
 .aviso-app.erro {
-    background-color: #FFE2E2;
-    color: #C10007;
+    background-color: var(--cor-erro-fundo);
+    border-color: var(--cor-erro-borda);
+    border-left-color: var(--cor-erro-texto);
+    color: var(--cor-erro-texto);
 }
 
 .aviso-app.sucesso {
-    background-color: #ECFDF5;
+    background-color: var(--cor-alerta-fundo);
+    border-color: var(--cor-alerta-borda);
+    border-left-color: var(--cor-primaria);
     color: var(--cor-alerta-texto);
 }
 
 .aviso-app.informacao {
     background-color: var(--cor-fundo);
+    border-color: var(--cor-borda);
+    border-left-color: var(--cor-primaria);
     color: var(--cor-alerta-texto);
 }
 
@@ -250,8 +313,30 @@ button.btn-principal {
 
 button[type="button"][onclick="avancarPasso()"]:hover,
 button.btn-principal:hover {
-    background-color: #007A55;
+    background-color: var(--cor-primaria-hover);
     box-shadow: 0 4px 12px rgba(0, 153, 102, 0.25);
+}
+
+button.btn-daltonismo {
+    width: auto;
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin: 0 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--cor-borda);
+    background-color: #FFFFFF;
+    color: var(--cor-texto-principal);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+button.btn-daltonismo.ativo {
+    background-color: var(--cor-primaria);
+    border-color: var(--cor-primaria-hover);
+    color: #FFFFFF;
 }
 
 .botoes-acao {
