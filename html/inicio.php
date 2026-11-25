@@ -2,6 +2,8 @@
 require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/desafios_diarios.php';
 require_once __DIR__ . '/../php/conquistas.php';
+require_once __DIR__ . '/../php/pontos.php';
+require_once __DIR__ . '/../php/tipos_atividade.php';
 
 $pagina_atual = 'inicio';
 $titulo_topo = 'Início';
@@ -14,14 +16,7 @@ desbloquear_conquistas_por_pontuacao($pdo, $id_usuario);
 $conquistas = obter_conquistas_usuario($pdo, $id_usuario);
 $total_conquistas_desbloqueadas = array_sum(array_column($conquistas, 'desbloqueada'));
 
-$hora = (int) date('G');
-if ($hora < 12) {
-    $saudacao = 'Bom dia';
-} elseif ($hora < 18) {
-    $saudacao = 'Boa tarde';
-} else {
-    $saudacao = 'Boa noite';
-}
+$saudacao = 'Olá';
 
 // Exemplo: virá das tabelas categoria_saude e desafio_diario (Sprints 2 e 3)
 $categorias = [
@@ -55,10 +50,55 @@ if ($escolhido) {
     $desafio_concluido = (bool) $stmt_conclusao->fetch();
 }
 
+$pontos_mes = pontos_do_mes($pdo, $id_usuario);
+
+$stmt_total = $pdo->prepare(
+    'SELECT COALESCE(SUM(dd.pontos_recompensa), 0)
+     FROM registro_conclusao rc
+     INNER JOIN desafio_diario dd ON dd.id_desafio_diario = rc.id_desafio_diario
+     WHERE rc.id_usuario = :id_usuario AND rc.status_conclusao = 1'
+);
+$stmt_total->execute([':id_usuario' => $id_usuario]);
+$pontos_totais = (int) $stmt_total->fetchColumn();
+
+$stmt_posicao = $pdo->prepare(
+    'SELECT u.id_usuario, COALESCE(SUM(dd.pontos_recompensa), 0) AS pontos
+     FROM usuario u
+     LEFT JOIN registro_conclusao rc
+            ON rc.id_usuario = u.id_usuario
+           AND rc.status_conclusao = 1
+           AND rc.data_hora >= :inicio_mes
+           AND rc.data_hora < CURDATE()
+     LEFT JOIN desafio_diario dd ON dd.id_desafio_diario = rc.id_desafio_diario
+     GROUP BY u.id_usuario'
+);
+$stmt_posicao->execute([':inicio_mes' => date('Y-m-01')]);
+$pontos_ranking = array_column($stmt_posicao->fetchAll(PDO::FETCH_ASSOC), 'pontos', 'id_usuario');
+$meus_pontos_ranking = (int) ($pontos_ranking[$id_usuario] ?? 0);
+$posicao = null;
+if ($meus_pontos_ranking > 0) {
+    $posicao = 1 + count(array_filter($pontos_ranking, fn($p) => (int) $p > $meus_pontos_ranking));
+}
+
+$stmt_indice = $pdo->prepare(
+    'SELECT tipo_atividade, valor_atingido, unidade
+     FROM atividade
+     WHERE id_usuario = :id AND data_hora >= DATE_SUB(NOW(), INTERVAL 30 DAY)'
+);
+$stmt_indice->execute([':id' => $id_usuario]);
+$tipos_indice = tipos_atividade();
+$pontos_indice = 0;
+foreach ($stmt_indice->fetchAll(PDO::FETCH_ASSOC) as $ativ) {
+    $pontos_indice += (float) $ativ['valor_atingido']
+        * ($tipos_indice[$ativ['tipo_atividade']]['unidades'][$ativ['unidade']] ?? 0);
+}
+
 $resumo = [
-    'posicao' => 4,
-    'pontos_totais' => '8.5k',
-    'indice' => 78,
+    'posicao' => $posicao !== null ? $posicao . 'º' : '-',
+    'pontos_totais' => $pontos_totais >= 1000
+        ? rtrim(rtrim(number_format($pontos_totais / 1000, 1, '.', ''), '0'), '.') . 'k'
+        : (string) $pontos_totais,
+    'indice' => (int) min(100, round($pontos_indice)),
 ];
 
 ?>
@@ -443,7 +483,7 @@ $resumo = [
             <div class="grupo-botoes">
                 <div class="pilula-info ambar">
                     <small>Pontos no mês</small>
-                    <strong><?= $pontos_mes ?></strong>
+                    <strong data-pontos-mes><?= $pontos_mes ?></strong>
                 </div>
             </div>
         </div>
@@ -457,6 +497,8 @@ $resumo = [
         <?php elseif (($_GET['erro'] ?? '') === 'meta'): ?>
             <p class="aviso-app erro" role="alert">Você ainda não atingiu a meta do desafio.</p>
         <?php endif; ?>
+
+        <p class="aviso-app" id="aviso-concluir" aria-live="polite" hidden></p>
 
         <section class="cartao-app com-padding" style="margin-bottom: 20px;" aria-labelledby="titulo-categorias">
             <h3 class="cartao-titulo" id="titulo-categorias"><span>Categorias de saúde</span></h3>
@@ -482,11 +524,11 @@ $resumo = [
                         <span><?= $escolhido['nivel'] ?></span>
                         <span class="etiqueta-pts">+<?= $escolhido['pontos'] ?> pts</span>
                     </div>
-                    <form action="../php/concluir_desafio.php" method="post" class="form-concluir">
+                    <form action="../php/concluir_desafio.php" method="post" class="form-concluir" data-form-concluir>
                         <label for="quantidade_feita">Quanto você atingiu?</label>
                         <input type="number" id="quantidade_feita" name="quantidade_feita" min="1" step="1" required>
                         <button type="submit" class="btn-concluir" <?= $desafio_concluido ? 'disabled' : '' ?>>
-                            <?= $desafio_concluido ? 'Desafio concluído' : 'Concluir desafio' ?> <span aria-hidden="true">✓</span>
+                            <span data-rotulo-concluir><?= $desafio_concluido ? 'Desafio concluído' : 'Concluir desafio' ?></span> <span aria-hidden="true">✓</span>
                         </button>
                     </form>
                 </section>
@@ -515,7 +557,7 @@ $resumo = [
                 <div class="grade-3 numeros">
                     <div class="cartao-app numero-cartao">
                         <span class="emoji" aria-hidden="true">🏆</span>
-                        <strong><?= $resumo['posicao'] ?>º</strong>
+                        <strong><?= $resumo['posicao'] ?></strong>
                         <small>No ranking</small>
                     </div>
                     <div class="cartao-app numero-cartao">
@@ -534,19 +576,19 @@ $resumo = [
                     <h3 class="cartao-titulo" id="titulo-conquistas">
                         <span>Conquistas</span>
                         <span class="conquista-contagem">
-                            <span aria-hidden="true"><?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas</span>
-                            <span class="so-leitor"><?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas</span>
+                            <span aria-hidden="true" data-contagem-visivel><?= $total_conquistas_desbloqueadas ?>/<?= count($conquistas) ?> desbloqueadas</span>
+                            <span class="so-leitor" data-contagem-leitor><?= $total_conquistas_desbloqueadas ?> de <?= count($conquistas) ?> conquistas desbloqueadas</span>
                         </span>
                     </h3>
                     <div class="conquistas-grade">
                         <?php foreach ($conquistas as $conquista): ?>
                             <?php $classe_status = $conquista['desbloqueada'] ? 'conquista-desbloqueada' : 'conquista-pendente'; ?>
-                            <div class="conquista-item <?= $classe_status ?>">
+                            <div class="conquista-item <?= $classe_status ?>" data-chave="<?= htmlspecialchars($conquista['chave'], ENT_QUOTES, 'UTF-8') ?>">
                                 <span class="emoji" aria-hidden="true"><?= $conquista['emoji'] ?></span>
                                 <div class="conquista-detalhes">
                                     <strong><?= htmlspecialchars($conquista['nome'], ENT_QUOTES, 'UTF-8') ?></strong>
                                     <small><?= htmlspecialchars($conquista['criterio'], ENT_QUOTES, 'UTF-8') ?></small>
-                                    <span class="conquista-status">
+                                    <span class="conquista-status" data-status-conquista>
                                         <?= $conquista['desbloqueada'] ? 'Desbloqueada' : 'Pendente' ?>
                                     </span>
                                 </div>
@@ -557,6 +599,77 @@ $resumo = [
             </div>
         </div>
     </main>
+
+
+    <script>
+        const formConcluir = document.querySelector('[data-form-concluir]');
+        const avisoConcluir = document.getElementById('aviso-concluir');
+
+        function mostrarAvisoConcluir(mensagem, sucesso) {
+            avisoConcluir.textContent = mensagem;
+            avisoConcluir.className = 'aviso-app ' + (sucesso ? 'sucesso' : 'erro');
+            avisoConcluir.setAttribute('role', sucesso ? 'status' : 'alert');
+            avisoConcluir.hidden = false;
+        }
+
+        function marcarComoConcluido(botao) {
+            botao.disabled = true;
+            botao.querySelector('[data-rotulo-concluir]').textContent = 'Desafio concluído';
+        }
+
+        function atualizarConquistas(chaves) {
+            chaves.forEach(function (chave) {
+                const item = document.querySelector('[data-chave="' + chave + '"]');
+                if (item && item.classList.contains('conquista-pendente')) {
+                    item.classList.remove('conquista-pendente');
+                    item.classList.add('conquista-desbloqueada');
+                    item.querySelector('[data-status-conquista]').textContent = 'Desbloqueada';
+                }
+            });
+            const desbloqueadas = document.querySelectorAll('.conquista-desbloqueada').length;
+            const total = document.querySelectorAll('[data-chave]').length;
+            document.querySelector('[data-contagem-visivel]').textContent = desbloqueadas + '/' + total + ' desbloqueadas';
+            document.querySelector('[data-contagem-leitor]').textContent = desbloqueadas + ' de ' + total + ' conquistas desbloqueadas';
+        }
+
+        if (formConcluir) {
+            formConcluir.addEventListener('submit', async function (evento) {
+                evento.preventDefault();
+
+                const botao = formConcluir.querySelector('button[type="submit"]');
+                if (botao.disabled) {
+                    return;
+                }
+                botao.disabled = true;
+
+                try {
+                    const resposta = await fetch(formConcluir.action, {
+                        method: 'POST',
+                        body: new FormData(formConcluir),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const resultado = await resposta.json();
+
+                    mostrarAvisoConcluir(resultado.mensagem, resultado.sucesso);
+
+                    if (resultado.sucesso) {
+                        document.querySelectorAll('[data-pontos-mes]').forEach(function (campo) {
+                            campo.textContent = resultado.pontos_mes;
+                        });
+                        marcarComoConcluido(botao);
+                        atualizarConquistas(resultado.conquistas || []);
+                    } else if (resultado.concluido) {
+                        marcarComoConcluido(botao);
+                    } else {
+                        botao.disabled = false;
+                    }
+                } catch (erro) {
+                    mostrarAvisoConcluir('Não foi possível concluir o desafio. Tente novamente.', false);
+                    botao.disabled = false;
+                }
+            });
+        }
+    </script>
 
     <?php if (($_GET['concluido'] ?? '') === '1'): ?>
         <script>

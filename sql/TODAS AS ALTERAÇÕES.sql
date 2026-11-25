@@ -264,3 +264,31 @@ WHERE NOT EXISTS (
 -- 8. Sem ALTER adicional para progresso de desafios de grupo.
 -- participacao.progresso_atual ja existe como INT no dump; desafios de grupo usam
 -- o id_grupo preenchido, e o status ja guarda valores como 'ativo'.
+
+-- 9. Verificacao de e-mail por codigo.
+-- usuarios ja existentes continuam verificados (DEFAULT 1); o cadastro novo grava 0 ate confirmar o codigo.
+
+SET @ddl = (
+    SELECT IF(
+        COUNT(*) = 0,
+        'ALTER TABLE usuario ADD COLUMN email_verificado TINYINT(1) NOT NULL DEFAULT 1',
+        'SELECT ''OK: usuario.email_verificado ja existe'' AS resultado'
+    )
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE()
+      AND TABLE_NAME = 'usuario'
+      AND COLUMN_NAME = 'email_verificado'
+);
+PREPARE migracao FROM @ddl;
+EXECUTE migracao;
+DEALLOCATE PREPARE migracao;
+
+CREATE TABLE IF NOT EXISTS verificacao_email (
+    id_usuario INT PRIMARY KEY,
+    codigo_hash VARCHAR(255) NOT NULL,
+    expira_em DATETIME NOT NULL,
+    tentativas INT NOT NULL DEFAULT 0,
+    ultimo_envio DATETIME NOT NULL,
+    CONSTRAINT fk_verificacao_email_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario) ON DELETE CASCADE
+);

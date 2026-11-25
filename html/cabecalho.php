@@ -3,8 +3,11 @@ require_once __DIR__ . '/../php/icones.php';
 
 $nome_usuario = $_SESSION['nome'] ?? 'Usuário';
 
-// Exemplo: virá da tabela ranking_temporada (Sprint 4)
-$pontos_mes = $pontos_mes ?? 1240;
+if (!isset($pontos_mes)) {
+    require_once __DIR__ . '/../php/conexao.php';
+    require_once __DIR__ . '/../php/pontos.php';
+    $pontos_mes = pontos_do_mes($pdo, (int) ($_SESSION['id_usuario'] ?? 0));
+}
 
 $abas = [
     'inicio'          => ['Início', 'inicio.php'],
@@ -30,7 +33,7 @@ $abas = [
         <span class="avatar" aria-hidden="true"><?= htmlspecialchars(iniciais($nome_usuario)) ?></span>
         <div>
             <strong><?= htmlspecialchars($nome_usuario) ?></strong>
-            <span><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts</span>
+            <span><span aria-hidden="true">⭐</span> <span data-pontos-mes><?= $pontos_mes ?></span> pts</span>
         </div>
     </div>
 
@@ -59,7 +62,7 @@ $abas = [
             <?= icone('contraste', 18) ?>
             <span class="rotulo-daltonismo">Daltonismo</span>
         </button>
-        <span class="selo-pontos"><span aria-hidden="true">⭐</span> <?= $pontos_mes ?> pts<span class="selo-extra"> este mês</span></span>
+        <span class="selo-pontos"><span aria-hidden="true">⭐</span> <span data-pontos-mes><?= $pontos_mes ?></span> pts<span class="selo-extra"> este mês</span></span>
         <a href="../php/logout.php" class="topo-sair" aria-label="Sair"><?= icone('sair', 20) ?></a>
     </div>
 </header>

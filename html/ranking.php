@@ -3,36 +3,11 @@ require_once __DIR__ . '/../php/verifica_sessao.php';
 require_once __DIR__ . '/../php/conexao.php';
 require_once __DIR__ . '/../php/buscar_ranking_diario.php';
 
-$pagina_atual = 'ranking';
-$titulo_topo = 'Ranking';
+require_once __DIR__ . '/../php/ranking_dados.php';
+require_once __DIR__ . '/../php/pontos.php';
 
-$meses = ['', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-$mes_atual = $meses[(int) date('n')];
-$primeiro_nome = explode(' ', trim($_SESSION['nome']))[0];
-
-// Exemplo (mensal): virá da tabela ranking_temporada (Sprint 4)
-$rankings = [
-    'mensal' => [
-        ['nome' => 'Marina Santos',     'pontos' => 1890, 'cor' => '#9E1B5E'],
-        ['nome' => 'Carlos Oliveira',   'pontos' => 1650, 'cor' => '#005AB5'],
-        ['nome' => 'Julia Ferraz',      'pontos' => 1520, 'cor' => '#00684A'],
-        ['nome' => $_SESSION['nome'],   'pontos' => 1240, 'cor' => '#B84700', 'eu' => true],
-        ['nome' => 'Pedro Alves',       'pontos' => 1180, 'cor' => '#6A359C'],
-        ['nome' => 'Ana Rodrigues',     'pontos' => 1020, 'cor' => '#005F73'],
-        ['nome' => 'Lucas Ferreira',    'pontos' => 890,  'cor' => '#005AB5'],
-        ['nome' => 'Carla Mendes',      'pontos' => 780,  'cor' => '#00684A'],
-        ['nome' => 'Tiago Souza',       'pontos' => 650,  'cor' => '#005F73'],
-        ['nome' => 'Beatriz Lima',      'pontos' => 540,  'cor' => '#9E1B5E'],
-    ],
-    'diario' => buscar_ranking_diario($pdo, (int) $_SESSION['id_usuario']),
-];
-
-$textos = [
-    'mensal' => ['subtitulo' => "Classificação mensal de $mes_atual. Atualizado diariamente.", 'podio' => "Pódio de $mes_atual"],
-    'diario' => ['subtitulo' => 'Pontuação obtida pelos usuários hoje (' . date('d/m') . ').', 'podio' => 'Pódio de hoje'],
-];
-
-$medalhas = [1 => '🥇', 2 => '🥈', 3 => '🥉'];
+$rankings['diario'] = buscar_ranking_diario($pdo, (int) $_SESSION['id_usuario']);
+$pontos_mes = pontos_do_mes($pdo, (int) $_SESSION['id_usuario']);
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">

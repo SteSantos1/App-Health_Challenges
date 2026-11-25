@@ -1,14 +1,14 @@
 <?php
 require_once __DIR__ . '/conexao.php';
 require_once __DIR__ . '/verifica_sessao.php';
+require_once __DIR__ . '/tipos_atividade.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../html/condicionamento.php');
     exit;
 }
 
-$tipos_validos = ['Caminhada', 'Corrida', 'Ciclismo'];
-$unidades_validas = ['km', 'min'];
+$tipos = tipos_atividade();
 
 $tipo = $_POST['tipo'] ?? '';
 $valor = (int) ($_POST['valor'] ?? 0);
@@ -16,8 +16,8 @@ $unidade = $_POST['unidade'] ?? '';
 $data_hora = DateTime::createFromFormat('Y-m-d\TH:i', $_POST['data_hora'] ?? '');
 
 if (
-    !in_array($tipo, $tipos_validos) ||
-    !in_array($unidade, $unidades_validas) ||
+    !isset($tipos[$tipo]) ||
+    !isset($tipos[$tipo]['unidades'][$unidade]) ||
     $valor <= 0 ||
     !$data_hora ||
     $data_hora > new DateTime()

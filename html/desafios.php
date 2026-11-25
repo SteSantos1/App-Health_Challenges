@@ -180,11 +180,11 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                 </div>
                 <div class="pilula-info roxo">
                     <small>Participando</small>
-                    <strong><?= $total_participando ?></strong>
+                    <strong id="total-participando"><?= $total_participando ?></strong>
                 </div>
             <div class="pilula-info ambar">
                 <small>Participantes</small>
-                <strong><?= $total_comunidade ?></strong>
+                <strong id="total-comunidade"><?= $total_comunidade ?></strong>
             </div>
             </div>
         </div>
@@ -193,6 +193,7 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
         <?php elseif (isset($_GET['erro_participar'])): ?>
             <p class="aviso-app erro" role="alert">Este desafio não está disponível.</p>
         <?php endif; ?>
+        <p class="aviso-app" id="aviso-participar" role="status" aria-live="polite" hidden></p>
         <div class="filtros">
             <div class="filtros-grupo" role="group" aria-label="Filtrar por categoria">
                 <button type="button" class="chip ativo" data-filtro="todos" aria-pressed="true"><span aria-hidden="true">✨</span> Todos</button>
@@ -219,14 +220,14 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                         <div class="desafio-meta">
                             <span><?= icone('alvo', 16) ?> <?= htmlspecialchars($desafio['meta'] ?? '') ?></span>
                             <span><?= icone('calendario', 16) ?> Até <?= $desafio['fim'] ?></span>
-                            <span><?= icone('grupos', 16) ?> <?= $desafio['participantes'] ?><span class="so-leitor"> participantes</span></span>
+                            <span><?= icone('grupos', 16) ?> <span data-contador-participantes><?= $desafio['participantes'] ?></span><span class="so-leitor"> participantes</span></span>
                         </div>
                     </div>
                     <div class="desafio-lado">
                         <?php if ($desafio['participando']): ?>
                             <span class="btn btn-participando"><?= icone('check', 16) ?> Participando</span>
                         <?php else: ?>
-                            <form method="post" action="../php/participar_desafio.php">
+                            <form method="post" action="../php/participar_desafio.php" data-form-participar>
                                 <input type="hidden" name="id_desafio" value="<?= (int) $desafio['id'] ?>">
                                 <button type="submit" class="btn btn-primario btn-participar">Participar</button>
                             </form>
@@ -236,6 +237,10 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
             <?php endforeach; ?>
         </div>
     </main>
+
+    <template id="modelo-participando">
+        <span class="btn btn-participando"><?= icone('check', 16) ?> Participando</span>
+    </template>
 
     <script>
         const cartoes = document.querySelectorAll('#lista-desafios .desafio');
@@ -273,6 +278,64 @@ $total_comunidade = array_sum(array_column($desafios, 'participantes'));
                 botao.setAttribute('aria-pressed', 'true');
                 filtroSituacao = botao.dataset.situacao;
                 aplicarFiltros();
+            });
+        });
+
+        const avisoParticipar = document.getElementById('aviso-participar');
+        const modeloParticipando = document.getElementById('modelo-participando');
+
+        function mostrarAviso(mensagem, sucesso) {
+            avisoParticipar.textContent = mensagem;
+            avisoParticipar.className = 'aviso-app ' + (sucesso ? 'sucesso' : 'erro');
+            avisoParticipar.setAttribute('role', sucesso ? 'status' : 'alert');
+            avisoParticipar.hidden = false;
+        }
+
+        function atualizarTotais() {
+            let participando = 0;
+            let comunidade = 0;
+            cartoes.forEach(function (cartao) {
+                if (cartao.dataset.participando === 'sim') {
+                    participando++;
+                }
+                comunidade += parseInt(cartao.querySelector('[data-contador-participantes]').textContent, 10) || 0;
+            });
+            document.getElementById('total-participando').textContent = participando;
+            document.getElementById('total-comunidade').textContent = comunidade;
+        }
+
+        document.querySelectorAll('[data-form-participar]').forEach(function (formulario) {
+            formulario.addEventListener('submit', async function (evento) {
+                evento.preventDefault();
+
+                const botao = formulario.querySelector('button[type="submit"]');
+                const cartao = formulario.closest('.desafio');
+                botao.disabled = true;
+
+                try {
+                    const resposta = await fetch(formulario.action, {
+                        method: 'POST',
+                        body: new FormData(formulario),
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const resultado = await resposta.json();
+
+                    mostrarAviso(resultado.mensagem, resultado.sucesso);
+
+                    if (!resultado.sucesso) {
+                        botao.disabled = false;
+                        return;
+                    }
+
+                    cartao.dataset.participando = 'sim';
+                    cartao.querySelector('[data-contador-participantes]').textContent = resultado.participantes;
+                    formulario.replaceWith(modeloParticipando.content.firstElementChild.cloneNode(true));
+                    atualizarTotais();
+                    aplicarFiltros();
+                } catch (erro) {
+                    mostrarAviso('Não foi possível entrar no desafio. Tente novamente.', false);
+                    botao.disabled = false;
+                }
             });
         });
     </script>
